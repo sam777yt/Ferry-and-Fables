@@ -313,7 +313,11 @@ function adjustProductStock(productId, size, color, delta, reason, actor = "Admi
   const newStock = Math.max(0, prevStock + Number(delta));
 
   if (window.ffSupabaseReady) {
-    const variantId = p._variantIds && p._variantIds[vKey];
+    const variantId = p._variantIds && (
+      p._variantIds[vKey] ||
+      p._variantIds["default"] ||
+      (Object.values(p._variantIds).length === 1 ? Object.values(p._variantIds)[0] : null)
+    );
     if (!variantId) return null;
     window.ffAdjustStock(variantId, Number(delta), reason, actionType)
       .catch(error => console.error("Supabase stock adjustment failed", error));

@@ -427,25 +427,70 @@ async function initAuth() {
   });
 }
 
+async function refreshSupabaseDashboardData() {
+  try {
+    const client = window.requireFfSupabase();
+    const [{ data: products, error: pErr }, { data: variants, error: vErr }, { data: orders, error: oErr }] = await Promise.all([
+      client.from("products").select("*").order("created_at", { ascending: true }),
+      client.from("product_variants").select("*"),
+      client.from("orders").select("*, order_items(*)").order("created_at", { ascending: false })
+    ]);
+    if (!pErr && !vErr && Array.isArray(products)) {
+      window.ffProductCache = typeof window.ffMapProductRows === "function"
+        ? window.ffMapProductRows(products, variants || [])
+        : products;
+    }
+    if (!oErr && Array.isArray(orders)) {
+      window.ffOrdersCache = orders.map(order => ({
+        id: order.order_number,
+        databaseId: order.id,
+        date: order.created_at,
+        customer: { name: order.customer_name, phone: order.customer_phone, address: order.customer_address },
+        total: Number(order.total),
+        status: order.status,
+        paymentStatus: order.payment_status,
+        items: (order.order_items || []).map(item => ({
+          id: item.product_id,
+          name: item.product_name,
+          size: item.size,
+          color: item.color,
+          qty: item.quantity,
+          price: Number(item.unit_price)
+        }))
+      }));
+    }
+  } catch (e) {
+    console.warn("[FF] refreshSupabaseDashboardData notice:", e);
+  }
+}
+
 async function prepareSupabaseDashboard() {
-  window.ffProductCache = await window.ffLoadCatalog();
+  await refreshSupabaseDashboardData();
   window.ffSettingsCache = await window.ffLoadSettings();
-  const { data, error } = await window.requireFfSupabase().from("orders").select("*, order_items(*)").order("created_at", { ascending: false });
-  if (error) throw error;
-  window.ffOrdersCache = (data || []).map(order => ({
-    id: order.order_number, databaseId: order.id, date: order.created_at,
-    customer: { name: order.customer_name, phone: order.customer_phone, address: order.customer_address },
-    total: Number(order.total), status: order.status, paymentStatus: order.payment_status,
-    items: (order.order_items || []).map(item => ({ id: item.product_id, name: item.product_name, size: item.size, color: item.color, qty: item.quantity, price: Number(item.unit_price) }))
-  }));
-  window.ffSubscribe(async () => {
-    await prepareSupabaseDashboard();
-    if (currentView === "orders") renderOrdersView();
-    renderOverview();
-  }, async () => {
-    await prepareSupabaseDashboard();
-    renderOrdersView();
-  });
+
+  // Wire Realtime channel once — ensures second tab / device immediately sees updates
+  if (!window._ffDashSubscribed && typeof window.ffSubscribe === "function") {
+    window._ffDashSubscribed = true;
+    window.ffSubscribe(
+      async () => {
+        // Stock / Products / Settings changed live
+        await refreshSupabaseDashboardData();
+        if (currentView === "products") renderProductsTable();
+        if (currentView === "overview") renderOverview();
+        if (currentView === "inventory" && typeof renderInventoryTable === "function") renderInventoryTable();
+        if (currentView === "orders") renderOrdersView();
+      },
+      async (payload) => {
+        // New order placed live
+        await refreshSupabaseDashboardData();
+        const ordNum = payload?.new?.order_number || "";
+        const custName = payload?.new?.customer_name || "Customer";
+        showToast(`🔔 Live Order: #${ordNum || "New"} placed by ${custName}!`, "success");
+        if (currentView === "orders") renderOrdersView();
+        if (currentView === "overview") renderOverview();
+      }
+    );
+  }
 }
 
 /* ─── NAVIGATION ─────────────────────────────────────────── */
@@ -1140,9 +1185,18 @@ function renderOrdersView() {
 
   // Delete individual
   grid.querySelectorAll(".order-delete-btn").forEach(btn => {
-    btn.onclick = () => {
+    btn.onclick = async () => {
       if (!confirm("Delete this order? This cannot be undone.")) return;
       const oid = btn.dataset.orderId;
+      if (window.ffSupabaseReady) {
+        try {
+          const { error } = await window.requireFfSupabase().from("orders").delete().eq("order_number", oid);
+          if (error) throw error;
+        } catch (e) {
+          showToast(e.message || "Could not delete order from cloud database.", "error");
+          return;
+        }
+      }
       saveOrdersDash(loadOrdersDash().filter(o => o.id !== oid));
       renderOrdersView();
       showToast("Order deleted.", "success");

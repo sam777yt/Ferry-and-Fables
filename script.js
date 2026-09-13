@@ -1667,17 +1667,18 @@ async function searchAndRenderTrackOrder(rawInput) {
       return;
     }
   } else {
-    // Local mode (IndexedDB / localStorage) — phone not required
+    // Local mode (IndexedDB / localStorage) — check with phone verification token
     if (window.FF_DB) {
       try {
-        const dbFound = await window.FF_DB.trackOrder(query);
+        const dbFound = await window.FF_DB.trackOrder(query, trackPhone);
         if (dbFound) {
           found = {
             id: dbFound.id,
             date: dbFound.date,
             status: dbFound.status,
             paymentStatus: dbFound.paymentStatus,
-            customer: dbFound.customer || { name: "Customer", phone: "—", address: "—" },
+            customer: dbFound.customer || null,
+            masked: Boolean(dbFound.masked),
             items: (dbFound.items || []).map(it => ({
               name: it.name || it.product_name,
               size: it.size,
@@ -1697,10 +1698,21 @@ async function searchAndRenderTrackOrder(rawInput) {
 
   if (!found) {
     const allOrders = loadOrders();
-    found = allOrders.find(o => {
+    const localMatch = allOrders.find(o => {
       const cleanId = (o.id || "").toUpperCase().replace(/^#/, "");
       return cleanId === query || cleanId.endsWith(query) || (o.id || "").toUpperCase().includes(query);
     });
+    if (localMatch) {
+      // If phone was provided and matches, unmask; otherwise mask customer details
+      const storedPhone = (localMatch.customer?.phone || "").replace(/\D/g, "");
+      const cleanQueryPhone = (trackPhone || "").replace(/\D/g, "");
+      const isPhoneMatched = cleanQueryPhone.length >= 6 && storedPhone.includes(cleanQueryPhone);
+      found = {
+        ...localMatch,
+        masked: !isPhoneMatched,
+        customer: isPhoneMatched ? localMatch.customer : null
+      };
+    }
   }
 
   container.style.display = "block";
@@ -1709,7 +1721,7 @@ async function searchAndRenderTrackOrder(rawInput) {
     container.innerHTML = `
       <div class="track-not-found" style="background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:16px;text-align:center">
         <p style="font-weight:700;color:#991b1b;margin-bottom:6px">Order Not Found</p>
-        <p style="font-size:.84rem;color:#7f1d1d;line-height:1.5">No order matches <strong>#${escHtml(query)}</strong>.<br>Please double check the Order ID on your screen or in your downloaded PDF receipt.</p>
+        <p style="font-size:.84rem;color:#7f1d1d;line-height:1.5">No order matches <strong>#${escHtml(query)}</strong>.<br>Please double check the Order ID and phone number entered.</p>
       </div>`;
     return;
   }
@@ -1738,7 +1750,10 @@ async function searchAndRenderTrackOrder(rawInput) {
   const settings = getSettings();
   const shopName = settings.shopName || "Ferry & Fable";
   const shopWa = getCleanWhatsAppNumber(settings.whatsapp || WHATSAPP_NUMBER);
-  const waDelayMsg = `Hello ${shopName},\nI am inquiring about my order #${found.id} placed on ${dateStr} at ${timeStr}.\nCustomer Name: ${found.customer.name}\nPhone: ${found.customer.phone}\nDelivery Address: ${found.customer.address}\nTotal Amount: Tk ${Number(found.total || 0).toLocaleString()}\nI have my downloaded PDF proof of order. I have not received an update yet — could you please check my order status?`;
+  const custName  = (found.customer && found.customer.name)    ? found.customer.name    : "Customer";
+  const custPhone = (found.customer && found.customer.phone)   ? found.customer.phone   : "—";
+  const custAddr  = (found.customer && found.customer.address) ? found.customer.address : "—";
+  const waDelayMsg = `Hello ${shopName},\nI am inquiring about my order #${found.id} placed on ${dateStr} at ${timeStr}.\nCustomer Name: ${custName}\nPhone: ${custPhone}\nDelivery Address: ${custAddr}\nTotal Amount: Tk ${Number(found.total || 0).toLocaleString()}\nI have not received an update yet — could you please check my order status?`;
 
   const isPaid = found.paymentStatus === "paid" || found.isPaid === true;
 
@@ -1792,11 +1807,18 @@ async function searchAndRenderTrackOrder(rawInput) {
 
       ${timelineHtml}
 
-      <div style="background:var(--paper,#f9f7f4);border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:.84rem;line-height:1.5">
-        <div><strong>Customer:</strong> ${escHtml(found.customer.name)} · 📞 ${escHtml(found.customer.phone)}</div>
-        <div style="color:var(--ink-soft)">📍 ${escHtml(found.customer.address)}</div>
-        <div style="margin-top:2px">💳 <strong>Payment:</strong> ${escHtml(found.payment)} ${isPaid ? '<strong style="color:#065f46;margin-left:4px">(Paid ✓)</strong>' : '<span style="color:#b45309;margin-left:4px">(Due on Delivery)</span>'}</div>
+      ${found.masked ? `
+      <div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:8px;padding:12px 14px;margin-bottom:12px;font-size:.84rem;line-height:1.5">
+        <div style="font-weight:700;color:#92400e;margin-bottom:4px">🔒 Customer Information Protected</div>
+        <div style="color:#78350f">Customer name, phone, and delivery address are hidden for privacy. Enter the checkout phone number above and click <strong>Search</strong> to verify your identity and view complete details.</div>
       </div>
+      ` : `
+      <div style="background:var(--paper,#f9f7f4);border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:.84rem;line-height:1.5">
+        <div><strong>Customer:</strong> ${escHtml(custName)} · 📞 ${escHtml(custPhone)}</div>
+        <div style="color:var(--ink-soft)">📍 ${escHtml(custAddr)}</div>
+        <div style="margin-top:2px">💳 <strong>Payment:</strong> ${escHtml(found.payment || "Cash on Delivery")} ${isPaid ? '<strong style="color:#065f46;margin-left:4px">(Paid ✓)</strong>' : '<span style="color:#b45309;margin-left:4px">(Due on Delivery)</span>'}</div>
+      </div>
+      `}
 
       <div style="margin-bottom:12px">${itemsHtml}</div>
 
@@ -1825,6 +1847,11 @@ async function searchAndRenderTrackOrder(rawInput) {
   const pdfBtn = container.querySelector("#trackCardPdfBtn");
   if (pdfBtn) {
     pdfBtn.onclick = () => {
+      if (found.masked) {
+        alert("Please enter the phone number you used at checkout above and click Search to verify ownership before downloading your receipt.");
+        $("#trackPhoneInput")?.focus();
+        return;
+      }
       downloadOrderPdf(found, getSettings());
     };
   }

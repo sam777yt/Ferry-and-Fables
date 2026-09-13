@@ -87,16 +87,29 @@
       try {
         const client = window.requireFfSupabase();
 
+        // Ensure catalog is loaded in memory for accurate variant ID resolution
+        if (!window.ffProductCache || !window.ffProductCache.length) {
+          if (typeof window.ffLoadCatalog === "function") {
+            window.ffProductCache = await window.ffLoadCatalog();
+          }
+        }
+
         // Map storefront cart items → RPC format using the cached catalog's variant IDs
         const rpcItems = items.map(function (it) {
           const prod = (window.ffProductCache || []).find(function (p) { return p.id === it.id; });
           const s = (it.size || "").trim();
           const c = (it.color || "").trim();
           const vKey = (!s && !c) ? "default" : (s + "__" + c);
-          const variantId = prod && prod._variantIds && prod._variantIds[vKey];
+          
+          let variantId = prod && prod._variantIds && (
+            prod._variantIds[vKey] ||
+            prod._variantIds["default"] ||
+            (Object.values(prod._variantIds).length === 1 ? Object.values(prod._variantIds)[0] : null)
+          );
+
           if (!variantId) {
             throw new Error(
-              "Cannot place order: variant not found for \"" + (it.name || it.id) + "\" (" + vKey + "). " +
+              "Cannot place order: variant not found for \"" + (it.name || it.id) + "\" (" + (vKey === "default" ? "Standard" : vKey) + "). " +
               "Please refresh the page and try again."
             );
           }
@@ -157,7 +170,11 @@
 
         if (error) throw error;
         // data is null when order doesn't exist or phone hash doesn't match
-        return data || null;
+        if (data) {
+          data.masked = false;
+          return data;
+        }
+        return null;
       } catch (e) {
         console.warn("[FF] Supabase track_order error:", e);
         // On network failure, fall back to local DB so the customer isn't left stranded

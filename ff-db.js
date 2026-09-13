@@ -756,6 +756,17 @@
             masked: true
           };
         }
+      } else {
+        // No phone provided: return masked public status info to prevent customer data leak
+        return {
+          id: order.order_number,
+          status: order.status,
+          paymentStatus: order.payment_status,
+          date: order.created_at,
+          items: order.items || [],
+          total: order.total,
+          masked: true
+        };
       }
 
       return {
