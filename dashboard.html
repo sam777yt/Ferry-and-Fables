@@ -1,0 +1,1176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Owner Dashboard — Ferry &amp; Fable</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+
+<!-- ============ LOGIN GATE ============ -->
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-card">
+    <p class="login-logo">Ferry <span>&amp;</span> Fable</p>
+    <h1>Owner Dashboard</h1>
+    <p class="login-sub" id="loginSub">Enter your dashboard password to continue.</p>
+    <form id="loginForm">
+      <div id="loginEmailWrap" style="display:none;margin-bottom:12px">
+        <label>Email
+          <input type="email" id="loginEmail" placeholder="admin@example.com" autocomplete="username">
+        </label>
+      </div>
+      <label id="loginPasswordLabel">Password
+        <input type="password" id="loginPassword" required placeholder="Enter your password" autocomplete="current-password">
+      </label>
+      <p class="login-error" id="loginError"></p>
+      <button type="submit" class="btn btn-primary btn-block">Sign in</button>
+    </form>
+  </div>
+</div>
+
+<!-- ============ DASHBOARD SHELL ============ -->
+<div class="dash-shell" id="dashShell" style="display:none">
+
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <p class="logo">Ferry <span>&amp;</span> Fable</p>
+      <span class="brand-tag">Owner Panel</span>
+    </div>
+    <nav class="sidebar-nav">
+      <button class="nav-item" data-view="overview">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Overview
+      </button>
+      <button class="nav-item active" data-view="products">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+        Products
+      </button>
+      <button class="nav-item" data-view="add">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+        Add Product
+      </button>
+      <button class="nav-item" data-view="categories">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16M4 12h16M4 18h7"/><circle cx="18" cy="18" r="3"/></svg>
+        Departments &amp; Categories
+      </button>
+
+      <button class="nav-item" data-view="hero">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        Hero &amp; Sections
+      </button>
+      <button class="nav-item" data-view="orders">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg>
+        Orders
+      </button>
+      <button class="nav-item" data-view="settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        Settings
+      </button>
+    </nav>
+    <div class="sidebar-footer">
+      <a href="index.html" target="_blank" class="view-store-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        View live store
+      </a>
+      <button class="logout-btn" id="logoutBtn">Sign out</button>
+    </div>
+  </aside>
+
+  <!-- Mobile header -->
+  <div class="mobile-header">
+    <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
+      <span></span><span></span><span></span>
+    </button>
+    <span class="mobile-title">Owner Dashboard</span>
+  </div>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <!-- ===== MAIN ===== -->
+  <main class="dash-main">
+
+    <!-- ===== VIEW: OVERVIEW ===== -->
+    <section class="view" id="viewOverview" style="display:none">
+      <div class="view-header">
+        <div>
+          <h2>Overview</h2>
+          <p class="view-sub">Your store at a glance.</p>
+        </div>
+        <button class="btn btn-primary" id="overviewAddBtn">+ Add product</button>
+      </div>
+      <div class="stats-grid" id="statsGrid">
+        <!-- filled by JS -->
+      </div>
+      <div class="overview-section">
+        <h3 class="section-title">Recent products</h3>
+        <div class="recent-grid" id="recentGrid"></div>
+      </div>
+    </section>
+
+    <!-- ===== VIEW: PRODUCTS TABLE ===== -->
+    <section class="view" id="viewProducts">
+      <div class="view-header">
+        <div>
+          <h2>Products</h2>
+          <p class="view-sub" id="productCount"></p>
+        </div>
+        <div class="header-actions-row">
+          <button type="button" class="btn btn-ghost btn-sm" id="quickStockSystemToggleBtn" title="Toggle storewide stock tracking ON or OFF" style="border:1px solid #cbd5e1;font-size:0.8rem;padding:6px 12px;">
+            📦 Stock System: <strong id="quickStockSystemStatusTxt" style="color:#16a34a">ON</strong>
+          </button>
+          <button class="btn btn-ghost btn-sm" id="bulkDeleteBtn" style="display:none">Delete selected</button>
+          <button class="btn btn-primary" id="addProductBtn">+ Add product</button>
+        </div>
+      </div>
+
+      <div class="table-toolbar">
+        <input type="text" id="tableSearch" placeholder="Search by name, category, or subcategory…" class="table-search">
+        <select id="departmentFilter" class="table-filter">
+          <option value="">All Departments</option>
+          <option value="Men">Men</option>
+          <option value="Women">Women</option>
+          <option value="Home & Living">Home &amp; Living</option>
+          <option value="All">Unisex / All</option>
+        </select>
+
+        <select id="categoryFilter" class="table-filter">
+          <option value="">All Categories</option>
+        </select>
+        <label class="toggle-label">
+          <input type="checkbox" id="selectAllCheck">
+          Select all
+        </label>
+      </div>
+
+      <div class="table-wrap">
+        <table class="product-table" id="productTable">
+          <thead>
+            <tr>
+              <th class="th-check"></th>
+              <th class="th-drag"></th>
+              <th>Image</th>
+              <th>Name</th>
+              <th>Department &amp; Cat</th>
+              <th>Price</th>
+              <th>Stock Status</th>
+              <th>Variants</th>
+              <th>Tag</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="productTableBody"></tbody>
+        </table>
+        <p class="empty-table" id="emptyTable" hidden>No products found. Click "+ Add product" to start!</p>
+      </div>
+    </section>
+
+    <!-- ===== VIEW: ADD / EDIT PRODUCT ===== -->
+    <section class="view" id="viewAdd" style="display:none">
+      <div class="view-header">
+        <div>
+          <h2 id="formTitle">Add Product</h2>
+          <p class="view-sub">Manage photos, sizes, colors, categories and stock status.</p>
+        </div>
+        <button class="btn btn-ghost" id="cancelFormBtn">← Back to products</button>
+      </div>
+
+      <div class="form-layout">
+        <form id="productForm" class="product-form" novalidate>
+          <input type="hidden" id="editId">
+          <input type="hidden" id="fImageData">
+
+          <!-- 1. MAIN IMAGE UPLOAD -->
+          <div class="form-group">
+            <label>Main Product Image <span class="req">*</span></label>
+            <div class="img-upload-zone" id="imgDropZone">
+              <div class="img-upload-inner" id="imgUploadInner">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="36" height="36"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                <p class="drop-main">Drag &amp; drop main image here</p>
+                <p class="drop-sub">or click to browse from device</p>
+                <button type="button" class="btn btn-ghost btn-sm" id="browseBtn">Browse file</button>
+                <p class="drop-hint">Auto-compressed for fast loading</p>
+              </div>
+              <div class="img-preview-wrap" id="imgPreviewWrap" style="display:none">
+                <img id="imgUploadedPreview" src="" alt="Main preview">
+                <div class="img-overlay">
+                  <button type="button" class="img-change-btn" id="changeImgBtn">Change main photo</button>
+                  <button type="button" class="img-remove-btn" id="removeImgBtn" title="Remove image">✕</button>
+                </div>
+              </div>
+            </div>
+            <input type="file" id="imgFileInput" accept="image/*" style="display:none">
+
+            <!-- URL fallback -->
+            <details class="url-fallback">
+              <summary>Or paste an image URL instead</summary>
+              <div class="url-fallback-inner">
+                <input type="url" id="fImageUrl" placeholder="https://images.unsplash.com/…">
+                <button type="button" class="btn btn-ghost btn-sm" id="useUrlBtn">Set URL</button>
+              </div>
+            </details>
+          </div>
+
+          <!-- 2. EXTRA IMAGES GALLERY -->
+          <div class="form-group extra-images-group">
+            <div class="extra-images-header">
+              <label>Extra Gallery Photos <span class="opt">(add multiple pictures)</span></label>
+              <span class="extra-img-counter" id="extraImgCounter">0 photos added</span>
+            </div>
+            <div class="extra-thumbs-grid" id="extraThumbsGrid">
+              <!-- Upload card button -->
+              <div class="extra-upload-card" id="extraUploadCard">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="22" height="22"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                <span>Add Photos</span>
+              </div>
+            </div>
+            <input type="file" id="extraImgFileInput" accept="image/*" multiple style="display:none">
+
+            <!-- Extra image URL option -->
+            <details class="url-fallback">
+              <summary>Or add extra image by URL</summary>
+              <div class="url-fallback-inner">
+                <input type="url" id="fExtraImageUrl" placeholder="https://…">
+                <button type="button" class="btn btn-ghost btn-sm" id="addExtraUrlBtn">+ Add URL</button>
+              </div>
+            </details>
+          </div>
+
+          <!-- 3. BASIC PRODUCT INFO -->
+          <div class="form-row">
+            <div class="form-group">
+              <label for="fName">Product Name <span class="req">*</span></label>
+              <input type="text" id="fName" required placeholder="e.g. Men's Relaxed Linen Shirt">
+            </div>
+            <div class="form-group">
+              <label for="fDepartment">Department / Section <span class="req">*</span></label>
+              <select id="fDepartment" required>
+                <option value="Men">Men</option>
+                <option value="Women">Women</option>
+                <option value="All">Unisex / All</option>
+                <option value="Home">Home &amp; Living</option>
+                <option value="Kids">Kids</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="fCategory">Category <span class="req">*</span></label>
+              <select id="fCategory" required>
+                <!-- populated from categories -->
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="fSubcategory">Subcategory <span class="opt">e.g. Shirts, Dresses, Pants</span></label>
+              <input type="text" id="fSubcategory" placeholder="e.g. Shirts" list="subcategoryList">
+              <datalist id="subcategoryList"></datalist>
+              <div class="dept-quick-tags" id="deptQuickTags" style="display:flex;gap:5px;flex-wrap:wrap;margin-top:6px"></div>
+            </div>
+          </div>
+
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="fPrice">Price <span class="req">*</span></label>
+              <div class="input-prefix-wrap">
+                <span class="input-prefix" id="currencyPrefix">৳</span>
+                <input type="number" id="fPrice" required min="0" step="0.01" placeholder="1350">
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="fOldPrice">Old Price <span class="opt">optional — shows crossed out</span></label>
+              <div class="input-prefix-wrap">
+                <span class="input-prefix" id="currencyPrefixOld">৳</span>
+                <input type="number" id="fOldPrice" min="0" step="0.01" placeholder="1750">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="fTag">Badge Label <span class="opt">optional</span></label>
+              <input type="text" id="fTag" placeholder="e.g. Best seller, New, Sale -20%">
+            </div>
+            <div class="form-group">
+              <label for="fStock">Stock Status <span class="req">*</span></label>
+              <select id="fStock">
+                <option value="in_stock">In stock (Available for purchase)</option>
+                <option value="out_of_stock">Out of stock (Shows badge &amp; disables bag button)</option>
+                <option value="hidden">Hidden (Completely hidden from store)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- 4. SIZES MANAGER -->
+          <div class="form-group option-manager-group">
+            <label>Available Sizes <span class="opt">(click preset to toggle or type custom size)</span></label>
+            <div class="preset-pill-strip" id="sizePresetStrip">
+              <button type="button" class="preset-pill" data-size="XS">XS</button>
+              <button type="button" class="preset-pill" data-size="S">S</button>
+              <button type="button" class="preset-pill" data-size="M">M</button>
+              <button type="button" class="preset-pill" data-size="L">L</button>
+              <button type="button" class="preset-pill" data-size="XL">XL</button>
+              <button type="button" class="preset-pill" data-size="XXL">XXL</button>
+              <button type="button" class="preset-pill" data-size="Free Size">Free Size</button>
+              <button type="button" class="preset-pill" data-size="30">30</button>
+              <button type="button" class="preset-pill" data-size="32">32</button>
+              <button type="button" class="preset-pill" data-size="34">34</button>
+              <button type="button" class="preset-pill" data-size="36">36</button>
+            </div>
+            <div class="custom-option-add">
+              <input type="text" id="customSizeInput" placeholder="Add custom size (e.g. UK 8, Standard 350ml)">
+              <button type="button" class="btn btn-ghost btn-sm" id="addCustomSizeBtn">+ Add Size</button>
+            </div>
+            <div class="active-chips-box" id="activeSizesBox">
+              <!-- active size chips -->
+            </div>
+          </div>
+
+          <!-- 5. COLORS MANAGER -->
+          <div class="form-group option-manager-group">
+            <label>Available Colors <span class="opt">(click preset or type custom color name)</span></label>
+            <div class="preset-pill-strip" id="colorPresetStrip">
+              <button type="button" class="preset-pill" data-color="White">White</button>
+              <button type="button" class="preset-pill" data-color="Black">Black</button>
+              <button type="button" class="preset-pill" data-color="Navy">Navy</button>
+              <button type="button" class="preset-pill" data-color="Sky Blue">Sky Blue</button>
+              <button type="button" class="preset-pill" data-color="Olive">Olive</button>
+              <button type="button" class="preset-pill" data-color="Sage Green">Sage Green</button>
+              <button type="button" class="preset-pill" data-color="Beige">Beige</button>
+              <button type="button" class="preset-pill" data-color="Khaki">Khaki</button>
+              <button type="button" class="preset-pill" data-color="Charcoal Grey">Charcoal Grey</button>
+              <button type="button" class="preset-pill" data-color="Red">Red</button>
+              <button type="button" class="preset-pill" data-color="Burgundy">Burgundy</button>
+              <button type="button" class="preset-pill" data-color="Terracotta">Terracotta</button>
+            </div>
+            <div class="custom-option-add">
+              <input type="text" id="customColorInput" placeholder="Add custom color name (e.g. Peach, Butter Yellow)">
+              <button type="button" class="btn btn-ghost btn-sm" id="addCustomColorBtn">+ Add Color</button>
+            </div>
+            <div class="active-chips-box" id="activeColorsBox">
+              <!-- active color chips -->
+            </div>
+          </div>
+
+          <!-- 6. INVENTORY & STOCK ENTRY -->
+          <div class="form-group option-manager-group" id="stockEntryGroup" style="background:#fff;border:1px solid #e2e8f0;border-radius:var(--radius-md);padding:18px;margin-bottom:20px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px;">
+              <label style="margin:0;font-weight:700;display:flex;align-items:center;gap:8px;cursor:pointer;">
+                <input type="checkbox" id="fTrackStock" checked style="width:18px;height:18px;accent-color:var(--coral);cursor:pointer;">
+                <span style="font-size:0.95rem;color:var(--navy);">📦 Track Inventory / Stock for this product</span>
+              </label>
+              <span id="stockTrackingStatusBadge" style="font-size:0.75rem;padding:3px 10px;border-radius:20px;background:#ecfdf5;color:#065f46;font-weight:700;letter-spacing:0.02em;">TRACKING ON</span>
+            </div>
+
+            <!-- When tracking is enabled -->
+            <div id="stockEntryDetailsWrap">
+              <!-- Simple product stock (when no sizes and no colors) -->
+              <div id="simpleStockEntryWrap">
+                <div class="form-row">
+                  <div class="form-group" style="margin-bottom:0;">
+                    <label for="fSimpleStockQty">Initial Stock Quantity <span class="req">*</span></label>
+                    <input type="number" id="fSimpleStockQty" min="0" value="20" placeholder="e.g. 20" style="font-weight:600;">
+                  </div>
+                  <div class="form-group" style="margin-bottom:0;">
+                    <label for="fProdLowStockThreshold">Low Stock Alert Threshold <span class="opt">optional</span></label>
+                    <input type="number" id="fProdLowStockThreshold" min="1" placeholder="Store default (5)">
+                  </div>
+                </div>
+                <small style="display:block;color:var(--ink-soft);font-size:0.78rem;margin-top:6px;">
+                  If you add sizes or colors above, a per-variant stock breakdown will appear automatically.
+                </small>
+              </div>
+
+              <!-- Variant product stock (when sizes or colors are selected) -->
+              <div id="variantStockEntryWrap" style="display:none;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;background:#f8fafc;padding:10px 14px;border-radius:6px;border:1px solid #e2e8f0;flex-wrap:wrap;gap:8px;">
+                  <div>
+                    <strong style="font-size:0.86rem;color:var(--navy);">Variant Stock Quantities</strong>
+                    <div style="font-size:0.76rem;color:var(--ink-soft);">Enter available stock for each size and color variant:</div>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:6px;">
+                    <span style="font-size:0.8rem;color:var(--ink-soft);">Quick set all:</span>
+                    <input type="number" id="bulkVariantQtyInput" value="20" min="0" style="width:65px;padding:4px 8px;font-size:0.82rem;border:1px solid #cbd5e1;border-radius:4px;text-align:center;font-weight:600;">
+                    <button type="button" class="btn btn-ghost btn-sm" id="applyBulkVariantQtyBtn" style="padding:4px 10px;font-size:0.78rem;font-weight:600;">Apply to all</button>
+                  </div>
+                </div>
+
+                <div id="variantStockTableWrap" style="max-height:280px;overflow-y:auto;border:1px solid #e2e8f0;border-radius:6px;background:#fff;">
+                  <table style="width:100%;border-collapse:collapse;font-size:0.84rem;">
+                    <thead>
+                      <tr style="background:#f1f5f9;position:sticky;top:0;z-index:1;">
+                        <th style="padding:8px 12px;text-align:left;border-bottom:1px solid #cbd5e1;font-weight:600;">Variant (Size / Color)</th>
+                        <th style="padding:8px 12px;text-align:right;border-bottom:1px solid #cbd5e1;font-weight:600;width:130px;">Stock Quantity</th>
+                      </tr>
+                    </thead>
+                    <tbody id="variantStockTableBody">
+                      <!-- generated by JS -->
+                    </tbody>
+                  </table>
+                </div>
+
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding:0 4px;">
+                  <span style="font-size:0.82rem;font-weight:600;color:var(--navy);" id="variantStockTotalLabel">Total Stock: 0 units</span>
+                  <div style="display:flex;align-items:center;gap:6px;">
+                    <label for="fVariantLowStockThreshold" style="margin:0;font-size:0.78rem;color:var(--ink-soft);">Low stock alert:</label>
+                    <input type="number" id="fVariantLowStockThreshold" min="1" placeholder="5" style="width:60px;padding:3px 6px;font-size:0.78rem;border:1px solid #cbd5e1;border-radius:4px;text-align:center;">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- When tracking is disabled -->
+            <div id="stockTrackingDisabledNote" style="display:none;padding:14px;background:#f8fafc;border:1.5px dashed #cbd5e1;border-radius:6px;font-size:0.85rem;color:#64748b;line-height:1.4;">
+              ♾️ <strong>Stock tracking is OFF for this product.</strong> Customers can purchase any quantity without inventory deductions or out-of-stock warnings.
+            </div>
+          </div>
+
+          <!-- 7. DESCRIPTION -->
+          <div class="form-group">
+            <label for="fDescription">Product Description <span class="req">*</span></label>
+            <textarea id="fDescription" required rows="4" placeholder="Detailed product description, fabric, dimensions, features…"></textarea>
+            <p class="char-count" id="descCharCount">0 characters</p>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary" id="saveBtn">Save product</button>
+            <button type="button" class="btn btn-ghost" id="cancelFormBtn2">Cancel</button>
+          </div>
+          <p class="form-error" id="formError"></p>
+        </form>
+
+        <!-- Live Product Preview -->
+        <div class="preview-panel">
+          <p class="preview-label">
+            Live Storefront Preview
+            <span class="preview-hint">Updates as you edit</span>
+          </p>
+          <div class="preview-card" id="previewCard">
+            <div class="preview-media">
+              <img id="previewImg" src="" alt="Preview" style="display:none">
+              <span class="preview-tag-badge" id="previewTagBadge" style="display:none"></span>
+              <span class="preview-stock-badge-tag" id="previewStockBadgeTag" style="display:none"></span>
+              <div class="preview-placeholder" id="previewPlaceholder">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="40" height="40"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                <span>Upload an image</span>
+              </div>
+            </div>
+            <div class="preview-body">
+              <span class="preview-cat" id="previewCat">Men • Shirts</span>
+              <p class="preview-name" id="previewName">Product name</p>
+
+              <!-- Preview colors & sizes dots -->
+              <div class="preview-variants-line" id="previewVariantsLine"></div>
+
+              <div class="preview-price-row">
+                <span class="preview-price" id="previewPrice">৳0</span>
+                <span class="preview-old" id="previewOld"></span>
+              </div>
+              <div class="preview-add-btn" id="previewBtnState">Add to bag</div>
+            </div>
+          </div>
+          <div class="preview-stock-banner" id="previewStockBanner"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== VIEW: DEPARTMENTS & CATEGORIES MANAGER ===== -->
+    <section class="view" id="viewCategories" style="display:none">
+      <div class="view-header">
+        <div>
+          <h2>Departments &amp; Categories</h2>
+          <p class="view-sub">Edit department names (e.g. rename "Home &amp; Living", "Men", "Women"), manage categories and subcategories.</p>
+        </div>
+        <div class="header-actions-row">
+          <button class="btn btn-ghost" id="addDepartmentBtn">+ Add Department</button>
+          <button class="btn btn-primary" id="addCategoryBtn">+ Add Category</button>
+        </div>
+      </div>
+
+      <!-- DEPARTMENTS TABLE -->
+      <div class="dash-sub-block" style="margin-bottom:32px">
+        <div class="sub-block-head" style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:12px; flex-wrap:wrap; gap:8px">
+          <h3 style="font-size:1.15rem; color:var(--navy); font-family:var(--font-display)">Store Departments</h3>
+          <span style="font-size:.82rem; color:var(--ink-soft)">Renaming a department updates all its products, categories, and storefront tabs automatically</span>
+        </div>
+        <div class="table-wrap">
+          <table class="product-table" id="departmentsTable">
+            <thead>
+              <tr>
+                <th>Department Name</th>
+                <th>Storefront Tab Label</th>
+                <th>Total Products</th>
+                <th>Categories</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="departmentsTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- CATEGORIES TABLE -->
+      <div class="dash-sub-block">
+        <div class="sub-block-head" style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:12px; flex-wrap:wrap; gap:8px">
+          <h3 style="font-size:1.15rem; color:var(--navy); font-family:var(--font-display)">Product Categories</h3>
+          <span style="font-size:.82rem; color:var(--ink-soft)">Categories grouped by department</span>
+        </div>
+        <div class="table-wrap">
+          <table class="product-table" id="categoriesTable">
+            <thead>
+              <tr>
+                <th>Category Name</th>
+                <th>Department</th>
+                <th>Subcategories</th>
+                <th>Products</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="categoriesTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ===== VIEW: HERO & SECTIONS EDITOR ===== -->
+    <section class="view" id="viewHero" style="display:none">
+      <div class="view-header">
+        <div>
+          <h2>Hero &amp; Sections Editor</h2>
+          <p class="view-sub">Customize the hero banner, stats, and the Men's &amp; Women's featured collections.</p>
+        </div>
+        <a href="index.html" target="_blank" class="btn btn-ghost">Preview store ↗</a>
+      </div>
+
+      <div class="hero-editor-layout">
+        <div class="hero-form-column">
+          <!-- 1. Hero Text Form -->
+          <div class="settings-card hero-card">
+            <h3>Hero Headline &amp; Banner</h3>
+            <form id="heroForm">
+              <div class="form-group">
+                <label for="hEyebrow">Eyebrow text</label>
+                <input type="text" id="hEyebrow" placeholder="No sign-up. No password. Just shopping.">
+              </div>
+              <div class="form-group">
+                <label for="hTitle">Main Headline (use Enter for line break)</label>
+                <textarea id="hTitle" rows="3" placeholder="Things you actually need, at prices that make sense."></textarea>
+              </div>
+              <div class="form-group">
+                <label for="hSubtitle">Subtitle paragraph</label>
+                <textarea id="hSubtitle" rows="3" placeholder="Browse the catalog, drop what you like into your bag…"></textarea>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="hBtn1">Button 1 text</label>
+                  <input type="text" id="hBtn1" placeholder="Start browsing">
+                </div>
+                <div class="form-group">
+                  <label for="hBtn2">Button 2 text</label>
+                  <input type="text" id="hBtn2" placeholder="How ordering works">
+                </div>
+              </div>
+
+              <h4 class="sub-section-title">Stats Bar (3 Highlights)</h4>
+              <div class="form-row stats-row">
+                <div class="form-group">
+                  <label for="hStat1Val">Stat 1 Value</label>
+                  <input type="text" id="hStat1Val" placeholder="500+">
+                </div>
+                <div class="form-group">
+                  <label for="hStat1Label">Stat 1 Label</label>
+                  <input type="text" id="hStat1Label" placeholder="orders delivered">
+                </div>
+              </div>
+              <div class="form-row stats-row">
+                <div class="form-group">
+                  <label for="hStat2Val">Stat 2 Value</label>
+                  <input type="text" id="hStat2Val" placeholder="64">
+                </div>
+                <div class="form-group">
+                  <label for="hStat2Label">Stat 2 Label</label>
+                  <input type="text" id="hStat2Label" placeholder="districts reached">
+                </div>
+              </div>
+              <div class="form-row stats-row">
+                <div class="form-group">
+                  <label for="hStat3Val">Stat 3 Value</label>
+                  <input type="text" id="hStat3Val" placeholder="24h">
+                </div>
+                <div class="form-group">
+                  <label for="hStat3Label">Stat 3 Label</label>
+                  <input type="text" id="hStat3Label" placeholder="order confirmation">
+                </div>
+              </div>
+
+              <!-- Hero Art Images -->
+              <h4 class="sub-section-title" style="margin-top:28px">Hero Banner Photos (Website Main Images)</h4>
+              <div class="form-group">
+                <label for="hHeroImg1">Hero Main Photo 1 <span class="opt">(URL or upload file)</span></label>
+                <div style="display:flex;gap:8px;align-items:center">
+                  <input type="url" id="hHeroImg1" placeholder="https://images.unsplash.com/…" style="flex:1">
+                  <button type="button" class="btn btn-ghost btn-sm" id="hHeroImg1UploadBtn">📁 Upload</button>
+                </div>
+                <input type="file" id="hHeroImg1File" accept="image/*" style="display:none">
+                <div id="hHeroImg1Preview" style="margin-top:6px;display:none">
+                  <img id="hHeroImg1PreviewImg" src="" alt="Hero 1 preview" style="max-height:80px;max-width:200px;border-radius:6px;object-fit:cover;border:1px solid var(--line)">
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="hHeroImg2">Hero Main Photo 2 <span class="opt">(URL or upload file)</span></label>
+                <div style="display:flex;gap:8px;align-items:center">
+                  <input type="url" id="hHeroImg2" placeholder="https://images.unsplash.com/…" style="flex:1">
+                  <button type="button" class="btn btn-ghost btn-sm" id="hHeroImg2UploadBtn">📁 Upload</button>
+                </div>
+                <input type="file" id="hHeroImg2File" accept="image/*" style="display:none">
+                <div id="hHeroImg2Preview" style="margin-top:6px;display:none">
+                  <img id="hHeroImg2PreviewImg" src="" alt="Hero 2 preview" style="max-height:80px;max-width:200px;border-radius:6px;object-fit:cover;border:1px solid var(--line)">
+                </div>
+              </div>
+
+              <!-- 2. Men's Collection Controls -->
+              <h4 class="sub-section-title" style="margin-top:28px">Men's Collection Section</h4>
+              <div class="form-group">
+                <label for="hMenTitle">Section Title</label>
+                <input type="text" id="hMenTitle" placeholder="Men's Collection">
+              </div>
+              <div class="form-group">
+                <label for="hMenSub">Tagline / Subtitle</label>
+                <input type="text" id="hMenSub" placeholder="Relaxed linen shirts, tailored chinos &amp; everyday staples.">
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="hMenBtnText">Button Text</label>
+                  <input type="text" id="hMenBtnText" placeholder="Explore Men →">
+                </div>
+                <div class="form-group">
+                  <label for="hMenCats">Subcategories (comma separated)</label>
+                  <input type="text" id="hMenCats" placeholder="Shirts, T-Shirts, Pants, Shoes, Jackets">
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="hMenImage">Men's Banner Image <span class="opt">(URL or upload file)</span></label>
+                <div style="display:flex;gap:8px;align-items:center">
+                  <input type="url" id="hMenImage" placeholder="https://images.unsplash.com/…" style="flex:1">
+                  <button type="button" class="btn btn-ghost btn-sm" id="hMenImageUploadBtn">📁 Upload</button>
+                </div>
+                <input type="file" id="hMenImageFile" accept="image/*" style="display:none">
+                <div id="hMenImagePreview" style="margin-top:6px;display:none">
+                  <img id="hMenImagePreviewImg" src="" alt="Men's preview" style="max-height:80px;max-width:200px;border-radius:6px;object-fit:cover;border:1px solid var(--line)">
+                </div>
+              </div>
+
+              <!-- 3. Women's Collection Controls -->
+              <h4 class="sub-section-title" style="margin-top:28px">Women's Collection Section</h4>
+              <div class="form-group">
+                <label for="hWomenTitle">Section Title</label>
+                <input type="text" id="hWomenTitle" placeholder="Women's Collection">
+              </div>
+              <div class="form-group">
+                <label for="hWomenSub">Tagline / Subtitle</label>
+                <input type="text" id="hWomenSub" placeholder="Flowy linen dresses, breathable poplin shirts &amp; scarves.">
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="hWomenBtnText">Button Text</label>
+                  <input type="text" id="hWomenBtnText" placeholder="Explore Women →">
+                </div>
+                <div class="form-group">
+                  <label for="hWomenCats">Subcategories (comma separated)</label>
+                  <input type="text" id="hWomenCats" placeholder="Dresses, Tops, Pants, Scarves, Bags">
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="hWomenImage">Women's Banner Image <span class="opt">(URL or upload file)</span></label>
+                <div style="display:flex;gap:8px;align-items:center">
+                  <input type="url" id="hWomenImage" placeholder="https://images.unsplash.com/…" style="flex:1">
+                  <button type="button" class="btn btn-ghost btn-sm" id="hWomenImageUploadBtn">📁 Upload</button>
+                </div>
+                <input type="file" id="hWomenImageFile" accept="image/*" style="display:none">
+                <div id="hWomenImagePreview" style="margin-top:6px;display:none">
+                  <img id="hWomenImagePreviewImg" src="" alt="Women's preview" style="max-height:80px;max-width:200px;border-radius:6px;object-fit:cover;border:1px solid var(--line)">
+                </div>
+              </div>
+
+              <div class="form-actions" style="margin-top:30px">
+                <button type="submit" class="btn btn-primary">Save Hero &amp; Sections</button>
+              </div>
+              <p class="form-success" id="heroSuccess"></p>
+            </form>
+          </div>
+        </div>
+
+        <!-- Live Hero Preview Panel -->
+        <div class="hero-preview-panel">
+          <p class="preview-label">Live Hero &amp; Sections Preview</p>
+
+          <!-- Hero box -->
+          <div class="hero-preview-box" id="heroPreviewBox">
+            <p class="hp-eyebrow" id="hpEyebrow">No sign-up. No password. Just shopping.</p>
+            <h2 class="hp-title" id="hpTitle">Things you actually need,<br>at prices that make sense.</h2>
+            <p class="hp-sub" id="hpSub">Browse the catalog, drop what you like into your bag, and check out in one message.</p>
+            <div class="hp-btns">
+              <span class="hp-btn hp-btn-primary" id="hpBtn1">Start browsing</span>
+              <span class="hp-btn hp-btn-ghost" id="hpBtn2">How ordering works</span>
+            </div>
+            <div class="hp-stats">
+              <div><strong id="hpStat1Val">500+</strong><small id="hpStat1Label">orders delivered</small></div>
+              <div><strong id="hpStat2Val">64</strong><small id="hpStat2Label">districts reached</small></div>
+              <div><strong id="hpStat3Val">24h</strong><small id="hpStat3Label">order confirmation</small></div>
+            </div>
+          </div>
+
+          <!-- Men showcase preview -->
+          <div class="showcase-mini-preview" id="previewMenCard" style="margin-top:16px">
+            <span class="smp-tag">Men's Preview</span>
+            <h4 id="previewMenTitle">Men's Collection</h4>
+            <p id="previewMenSub">Relaxed linen shirts, tailored chinos &amp; everyday staples.</p>
+          </div>
+
+          <!-- Women showcase preview -->
+          <div class="showcase-mini-preview" id="previewWomenCard" style="margin-top:10px">
+            <span class="smp-tag">Women's Preview</span>
+            <h4 id="previewWomenTitle">Women's Collection</h4>
+            <p id="previewWomenSub">Flowy linen dresses, breathable poplin shirts &amp; scarves.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== VIEW: ORDERS ===== -->
+    <section class="view" id="viewOrders" style="display:none">
+      <div class="view-header">
+        <div>
+          <h2>Web Orders</h2>
+          <p class="view-sub" id="ordersCountSub">Orders placed directly through the storefront.</p>
+        </div>
+        <div class="header-actions-row">
+          <select id="orderStatusFilter" class="table-filter">
+            <option value="">All Statuses</option>
+            <option value="pending">Pending</option>
+            <option value="confirmed">Confirmed</option>
+            <option value="shipped">Shipped</option>
+            <option value="delivered">Delivered</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+          <select id="orderPaymentFilter" class="table-filter">
+            <option value="">All Payments</option>
+            <option value="unpaid">⏳ Unpaid</option>
+            <option value="paid">✅ Paid</option>
+          </select>
+          <button class="btn btn-ghost btn-sm" id="clearAllOrdersBtn">Clear All Orders</button>
+        </div>
+      </div>
+
+      <div class="table-toolbar" style="margin-bottom:16px">
+        <input type="text" id="orderSearchInput" placeholder="🔍 Search orders by Order ID (e.g. ORD-), customer name, phone, address…" class="table-search" style="flex:1">
+      </div>
+
+      <div id="ordersListWrap">
+        <p class="empty-table" id="emptyOrders">No web orders yet. Orders submitted directly from the storefront will appear here.</p>
+        <div id="ordersCardGrid" style="display:grid; gap:16px;"></div>
+      </div>
+    </section>
+
+    <!-- ===== VIEW: SETTINGS ===== -->
+    <section class="view" id="viewSettings" style="display:none">
+      <div class="view-header">
+        <div>
+          <h2>Settings</h2>
+          <p class="view-sub">Shop details, payment note, password and catalog backups.</p>
+        </div>
+      </div>
+      <div class="settings-layout">
+
+        <!-- LOGO UPLOAD CARD -->
+        <div class="settings-card">
+          <h3>Shop Logo</h3>
+          <p style="font-size:.84rem;color:var(--ink-soft);margin-bottom:14px">Upload your logo image (PNG/JPEG/SVG). It appears in the navbar and footer. Leave empty to show the shop name as text.</p>
+          <div class="logo-upload-zone" id="logoUploadZone">
+            <div id="logoUploadInner">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="32" height="32"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              <p style="margin:6px 0 2px;font-weight:600;font-size:.9rem">Drop logo here or click to browse</p>
+              <p style="font-size:.78rem;color:var(--ink-soft)">PNG, JPG, SVG — recommended max 200×60 px</p>
+              <button type="button" class="btn btn-ghost btn-sm" id="logoFileBrowseBtn">Browse file</button>
+            </div>
+            <div id="logoPreviewWrap" style="display:none;flex-direction:column;align-items:center;gap:10px">
+              <img id="logoDashPreview" src="" alt="Logo preview" style="max-height:60px;max-width:260px;object-fit:contain;border-radius:6px;border:1px solid var(--line);padding:8px;background:#fff">
+              <div style="display:flex;gap:8px">
+                <button type="button" class="btn btn-ghost btn-sm" id="logoChangeBtn">Change logo</button>
+                <button type="button" class="btn btn-ghost btn-sm" id="logoRemoveBtn" style="color:var(--red,#ef4444)">Remove logo</button>
+              </div>
+            </div>
+          </div>
+          <input type="file" id="logoFileInput" accept="image/*" style="display:none">
+          <div style="margin-top:10px">
+            <label style="font-size:.83rem;color:var(--ink-soft)">Or paste an image URL:</label>
+            <div style="display:flex;gap:8px;margin-top:4px">
+              <input type="url" id="logoUrlInput" placeholder="https://your-logo-url.png" style="flex:1;padding:7px 10px;border:1px solid var(--line);border-radius:6px;font-size:.85rem">
+              <button type="button" class="btn btn-ghost btn-sm" id="logoUrlSetBtn">Set URL</button>
+            </div>
+          </div>
+          <p class="form-success" id="logoSuccess" style="margin-top:8px"></p>
+        </div>
+
+        <div class="settings-card">
+          <h3>Shop Details</h3>
+          <form id="settingsForm">
+            <div class="form-group">
+              <label for="sShopName">Shop Name</label>
+              <input type="text" id="sShopName" placeholder="Ferry &amp; Fable">
+            </div>
+            <div class="form-group">
+              <label for="sWhatsapp">WhatsApp Number <span class="field-hint-inline">(e.g. +880 1700000000 or 01700000000)</span></label>
+              <input type="text" id="sWhatsapp" placeholder="+880 1700000000">
+            </div>
+
+
+            <div class="form-group">
+              <label for="sCurrency">Currency Symbol</label>
+              <input type="text" id="sCurrency" placeholder="৳" maxlength="5">
+            </div>
+            <div class="form-group">
+              <label for="sDeliveryNote">Checkout Delivery Note</label>
+              <input type="text" id="sDeliveryNote" placeholder="Delivery fee confirmed at checkout based on address.">
+            </div>
+            <div class="form-group">
+              <label for="sLowStockThreshold">⚠️ Low Stock Alert Threshold <span class="field-hint-inline">(show warning when variant qty drops to this)</span></label>
+              <input type="number" id="sLowStockThreshold" placeholder="5" min="1" max="100" style="max-width:120px">
+            </div>
+            <button type="submit" class="btn btn-primary">Save settings</button>
+            <p class="form-success" id="settingsSuccess"></p>
+          </form>
+        </div>
+
+
+
+        <div class="settings-card" id="stockSystemMasterCard" style="border: 1.5px solid #cbd5e1;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:10px;">
+            <div>
+              <h3 style="margin:0;">📦 Inventory &amp; Stock System Mode</h3>
+              <p style="font-size:.85rem;color:var(--ink-soft);margin-top:3px;margin-bottom:0;">Master switch: choose whether to enforce stock limits or allow free ordering.</p>
+            </div>
+            <label style="display:inline-flex;align-items:center;gap:8px;cursor:pointer;background:#f8fafc;padding:6px 12px;border-radius:8px;border:1px solid #cbd5e1;">
+              <input type="checkbox" id="sStockSystemMasterToggle" checked style="width:18px;height:18px;accent-color:var(--coral);cursor:pointer;">
+              <span id="sStockSystemMasterLabel" style="font-weight:700;font-size:0.9rem;color:#16a34a;">🟢 ENABLED (Active)</span>
+            </label>
+          </div>
+          <div id="stockSystemMasterDesc" style="padding:12px 14px;border-radius:8px;font-size:0.84rem;line-height:1.45;background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0;transition:all 0.2s;">
+            🟢 <strong>Stock System is ACTIVE</strong>: Inventory counts are tracked. Orders reserve stock, confirmation automatically deducts stock, low-stock alerts are shown, and overselling is strictly prevented.
+          </div>
+          <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+            <button type="button" class="btn btn-ghost btn-sm" onclick="openStockHistoryModal()">📋 View Stock History Audit</button>
+            <span style="font-size:0.8rem;color:var(--ink-soft);">Track each addition, deduction, return, and order reservation</span>
+          </div>
+        </div>
+
+        <div class="settings-card">
+          <h3>Change Dashboard Password</h3>
+          <form id="pwForm">
+            <div class="form-group">
+              <label for="pwCurrent">Current Password</label>
+              <input type="password" id="pwCurrent" required placeholder="Current password">
+            </div>
+            <div class="form-group">
+              <label for="pwNew">New Password</label>
+              <input type="password" id="pwNew" required placeholder="New password (min 4 characters)" minlength="4">
+            </div>
+            <div class="form-group">
+              <label for="pwConfirm">Confirm New Password</label>
+              <input type="password" id="pwConfirm" required placeholder="Confirm new password">
+            </div>
+            <button type="submit" class="btn btn-primary">Update password</button>
+            <p class="form-error" id="pwError"></p>
+            <p class="form-success" id="pwSuccess"></p>
+          </form>
+        </div>
+
+        <div class="settings-card">
+          <h3>Storage Usage</h3>
+          <div class="storage-bar-wrap">
+            <div class="storage-bar"><div class="storage-fill" id="storageFill"></div></div>
+            <p class="storage-text" id="storageText">Calculating…</p>
+          </div>
+          <p class="danger-note" style="margin-top:10px">Images are compressed locally for optimal speed and storage.</p>
+        </div>
+
+        <!-- ============ DATABASE & CLOUD SYNC HUB ============ -->
+        <div class="settings-card" id="dbHubCard" style="border: 1.5px solid #6366f1;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:10px;">
+            <div>
+              <h3 style="margin:0;display:flex;align-items:center;gap:8px">
+                🗄️ Database &amp; Cloud Sync Engine
+              </h3>
+              <p style="font-size:.85rem;color:var(--ink-soft);margin-top:3px;margin-bottom:0;">
+                Unified persistence layer: runs on fast, zero-setup IndexedDB with optional Supabase PostgreSQL sync.
+              </p>
+            </div>
+            <div id="dbStatusBadge" style="padding:6px 14px;border-radius:999px;font-weight:700;font-size:0.82rem;background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0;display:inline-flex;align-items:center;gap:6px">
+              <span style="width:8px;height:8px;border-radius:50%;background:#10b981;display:inline-block"></span>
+              <span>IndexedDB Active (Local)</span>
+            </div>
+          </div>
+
+          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:14px;margin-bottom:14px">
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;text-align:center">
+              <div style="background:#fff;padding:10px;border-radius:8px;border:1px solid #e2e8f0">
+                <span style="font-size:1.25rem;font-weight:700;color:var(--navy);display:block" id="dbStatProducts">--</span>
+                <span style="font-size:.76rem;color:var(--ink-soft);text-transform:uppercase;font-weight:600">Products</span>
+              </div>
+              <div style="background:#fff;padding:10px;border-radius:8px;border:1px solid #e2e8f0">
+                <span style="font-size:1.25rem;font-weight:700;color:var(--navy);display:block" id="dbStatVariants">--</span>
+                <span style="font-size:.76rem;color:var(--ink-soft);text-transform:uppercase;font-weight:600">Variants</span>
+              </div>
+              <div style="background:#fff;padding:10px;border-radius:8px;border:1px solid #e2e8f0">
+                <span style="font-size:1.25rem;font-weight:700;color:var(--navy);display:block" id="dbStatOrders">--</span>
+                <span style="font-size:.76rem;color:var(--ink-soft);text-transform:uppercase;font-weight:600">Orders</span>
+              </div>
+              <div style="background:#fff;padding:10px;border-radius:8px;border:1px solid #e2e8f0">
+                <span style="font-size:1.25rem;font-weight:700;color:var(--navy);display:block" id="dbStatHistory">--</span>
+                <span style="font-size:.76rem;color:var(--ink-soft);text-transform:uppercase;font-weight:600">Audit Logs</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Supabase Configuration (Optional) -->
+          <details style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:12px;margin-bottom:12px">
+            <summary style="font-weight:600;font-size:.88rem;cursor:pointer;color:var(--navy);outline:none">
+              ☁️ Connect Supabase Cloud Database (Optional)
+            </summary>
+            <div style="margin-top:12px;font-size:.84rem;color:var(--ink-soft);line-height:1.5">
+              <p style="margin-bottom:10px">Want your data synced to Supabase PostgreSQL in the cloud? Enter your project details below:</p>
+              <div class="form-group" style="margin-bottom:10px">
+                <label for="sbUrlInput" style="font-size:.82rem">Supabase Project URL</label>
+                <input type="url" id="sbUrlInput" placeholder="https://your-project.supabase.co" style="width:100%;padding:8px 12px;border:1px solid #cbd5e1;border-radius:6px;font-size:.85rem">
+              </div>
+              <div class="form-group" style="margin-bottom:10px">
+                <label for="sbKeyInput" style="font-size:.82rem">Supabase Public Anon Key</label>
+                <input type="password" id="sbKeyInput" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." style="width:100%;padding:8px 12px;border:1px solid #cbd5e1;border-radius:6px;font-size:.85rem">
+              </div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+                <button type="button" class="btn btn-ghost btn-sm" id="sbTestBtn">🔍 Test Connection</button>
+                <button type="button" class="btn btn-primary btn-sm" id="sbSaveBtn">Save &amp; Connect</button>
+                <button type="button" class="btn btn-ghost btn-sm" id="sbDisconnectBtn" style="color:var(--red,#ef4444);display:none">Disconnect Cloud</button>
+              </div>
+              <p id="sbTestResult" style="margin-top:8px;font-size:.82rem;font-weight:600"></p>
+            </div>
+          </details>
+        </div>
+
+        <div class="settings-card danger-card">
+          <h3>Data Management &amp; Backups</h3>
+          <p class="danger-note">Export full catalog (products, categories, hero, settings) as a JSON file, or restore from a backup.</p>
+          <div class="danger-actions">
+            <button class="btn btn-ghost" id="exportBtn">⬇ Export JSON Backup</button>
+            <label class="btn btn-ghost" style="cursor:pointer">
+              ⬆ Import JSON
+              <input type="file" id="importFile" accept=".json" style="display:none">
+            </label>
+            <button class="btn btn-ghost" id="clearCatalogBtn" style="color:var(--red,#ef4444);border-color:#fecaca">🗑 Clear Demo Catalog</button>
+            <button class="btn btn-danger" id="resetBtn">⚠ Reset to Defaults</button>
+          </div>
+          <p class="form-success" id="importSuccess"></p>
+          <p class="form-error" id="importError"></p>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+</div><!-- /dash-shell -->
+
+<!-- ============ DEPARTMENT ADD / EDIT MODAL ============ -->
+<div class="modal-overlay" id="departmentModal">
+  <div class="modal-box">
+    <h3 id="departmentModalTitle">Edit Department</h3>
+    <form id="departmentModalForm">
+      <input type="hidden" id="editDepartmentId">
+      <input type="hidden" id="originalDepartmentName">
+
+      <div class="form-group">
+        <label for="deptModalName">Department Name <span class="req">*</span></label>
+        <input type="text" id="deptModalName" required placeholder="e.g. Home &amp; Living, Men, Women">
+      </div>
+
+      <p class="modal-sub" id="deptRenameNotice" style="display:none; font-size:.82rem; color:var(--coral-dark);">
+        ℹ Renaming this department will automatically update all products and categories assigned to it, as well as the storefront navigation tab.
+      </p>
+
+      <div class="modal-actions" style="margin-top:20px">
+        <button type="submit" class="btn btn-primary" id="saveDeptModalBtn">Save Department</button>
+        <button type="button" class="btn btn-ghost" id="cancelDeptModalBtn">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ============ CATEGORY ADD / EDIT MODAL ============ -->
+<div class="modal-overlay" id="categoryModal">
+  <div class="modal-box">
+    <h3 id="categoryModalTitle">Add Category</h3>
+    <form id="categoryModalForm">
+      <input type="hidden" id="editCategoryId">
+      <input type="hidden" id="originalCategoryName">
+
+      <div class="form-group">
+        <label for="catModalName">Category Name <span class="req">*</span></label>
+        <input type="text" id="catModalName" required placeholder="e.g. Men's Fashion, Bags, Footwear">
+      </div>
+
+      <div class="form-group">
+        <label for="catModalDept">Default Department</label>
+        <select id="catModalDept">
+          <option value="Men">Men</option>
+          <option value="Women">Women</option>
+          <option value="All">Unisex / All</option>
+          <option value="Home & Living">Home &amp; Living</option>
+        </select>
+      </div>
+
+
+      <div class="form-group">
+        <label for="catModalSubcats">Subcategories <span class="opt">(comma separated)</span></label>
+        <input type="text" id="catModalSubcats" placeholder="e.g. Shirts, T-Shirts, Pants, Jackets">
+      </div>
+
+      <p class="modal-sub" id="catRenameNotice" style="display:none; font-size:.82rem; color:var(--coral-dark);">
+        ℹ Renaming this category will automatically update all existing products that use it.
+      </p>
+
+      <div class="modal-actions" style="margin-top:20px">
+        <button type="submit" class="btn btn-primary" id="saveCatModalBtn">Save Category</button>
+        <button type="button" class="btn btn-ghost" id="cancelCatModalBtn">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ============ DELETE PRODUCT MODAL ============ -->
+<div class="modal-overlay" id="deleteOverlay">
+  <div class="modal-box">
+    <h3>Delete product?</h3>
+    <p id="deleteProductName" class="delete-name"></p>
+    <p class="delete-note">This cannot be undone.</p>
+    <div class="modal-actions">
+      <button class="btn btn-danger" id="confirmDeleteBtn">Yes, delete</button>
+      <button class="btn btn-ghost" id="cancelDeleteBtn">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ DELETE CATEGORY MODAL ============ -->
+<div class="modal-overlay" id="deleteCategoryOverlay">
+  <div class="modal-box">
+    <h3>Delete category?</h3>
+    <p id="deleteCategoryName" class="delete-name"></p>
+    <p class="delete-note" id="deleteCategoryNote">Products in this category will not be deleted, but will become unassigned.</p>
+    <div class="modal-actions">
+      <button class="btn btn-danger" id="confirmDeleteCategoryBtn">Yes, delete category</button>
+      <button class="btn btn-ghost" id="cancelDeleteCategoryBtn">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ BULK DELETE MODAL ============ -->
+<div class="modal-overlay" id="bulkDeleteOverlay">
+  <div class="modal-box">
+    <h3>Delete selected products?</h3>
+    <p id="bulkDeleteCount" class="delete-name"></p>
+    <p class="delete-note">This cannot be undone.</p>
+    <div class="modal-actions">
+      <button class="btn btn-danger" id="confirmBulkDeleteBtn">Yes, delete all</button>
+      <button class="btn btn-ghost" id="cancelBulkDeleteBtn">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ STOCK ADJUST MODAL ============ -->
+<div class="modal-overlay" id="stockAdjustOverlay">
+  <div class="modal-box" style="max-width:420px">
+    <h3 id="stockAdjustTitle">📦 Stock Adjustment</h3>
+    <p id="stockAdjustVariantLabel" style="font-size:0.85rem;color:#64748b;margin-bottom:12px"></p>
+    <div class="stock-adjust-grid" id="stockAdjustGrid" style="margin-bottom:14px;font-size:0.85rem;line-height:1.8"></div>
+    <div style="display:flex;gap:8px;margin-bottom:10px">
+      <select id="stockAdjustVariant" class="form-input" style="flex:1"></select>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px">
+      <button class="btn btn-ghost" id="stockAdjustDecBtn" style="font-size:1.2rem;padding:6px 14px">−</button>
+      <input type="number" id="stockAdjustAmount" min="1" value="1" class="form-input" style="width:70px;text-align:center">
+      <button class="btn btn-ghost" id="stockAdjustIncBtn" style="font-size:1.2rem;padding:6px 14px">+</button>
+    </div>
+    <div style="margin-bottom:14px">
+      <label style="font-size:0.82rem;font-weight:600">Reason</label>
+      <select id="stockAdjustReason" class="form-input" style="margin-top:4px">
+        <option value="Manual Add">Manual Add (received stock)</option>
+        <option value="Manual Remove">Manual Remove (damaged / lost)</option>
+        <option value="Returned">Returned by customer</option>
+        <option value="Correction">Stock count correction</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" id="stockAdjustAddBtn">+ Add Stock</button>
+      <button class="btn btn-danger" id="stockAdjustRemoveBtn">− Remove Stock</button>
+      <button class="btn btn-ghost" id="stockAdjustCancelBtn">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ STOCK HISTORY MODAL ============ -->
+<div class="modal-overlay" id="stockHistoryOverlay">
+  <div class="modal-box" style="max-width:680px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <h3 style="margin:0">📋 Stock History</h3>
+      <button class="btn btn-ghost" id="stockHistoryCloseBtn">✕ Close</button>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:12px">
+      <input type="text" id="stockHistorySearch" class="form-input" placeholder="Search product / variant..." style="flex:1">
+      <select id="stockHistoryFilter" class="form-input" style="width:140px">
+        <option value="">All actions</option>
+        <option value="Manual Add">Manual Add</option>
+        <option value="Manual Remove">Manual Remove</option>
+        <option value="Sold">Sold (order confirmed)</option>
+        <option value="Returned">Returned</option>
+        <option value="Released">Released (cancelled)</option>
+        <option value="Correction">Correction</option>
+      </select>
+    </div>
+    <div style="max-height:420px;overflow-y:auto">
+      <table style="width:100%;border-collapse:collapse;font-size:0.82rem">
+        <thead>
+          <tr style="background:#f8fafc;position:sticky;top:0">
+            <th style="padding:8px;text-align:left;border-bottom:1px solid #e2e8f0">When</th>
+            <th style="padding:8px;text-align:left;border-bottom:1px solid #e2e8f0">Product / Variant</th>
+            <th style="padding:8px;text-align:left;border-bottom:1px solid #e2e8f0">Action</th>
+            <th style="padding:8px;text-align:right;border-bottom:1px solid #e2e8f0">Change</th>
+            <th style="padding:8px;text-align:right;border-bottom:1px solid #e2e8f0">After</th>
+            <th style="padding:8px;text-align:left;border-bottom:1px solid #e2e8f0">By</th>
+          </tr>
+        </thead>
+        <tbody id="stockHistoryBody"></tbody>
+      </table>
+    </div>
+    <div style="margin-top:10px;display:flex;justify-content:flex-end">
+      <button class="btn btn-ghost btn-sm" id="stockHistoryClearBtn" style="font-size:0.78rem;color:#dc2626">🗑 Clear All History</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ TOAST ============ -->
+<div class="dash-toast" id="dashToast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<script src="products.js"></script>
+<script src="ff-db.js"></script>
+<script src="ff-data.js"></script>
+<script src="migrate-catalog.js"></script>
+<script src="stock_engine.js"></script>
+<script src="dashboard.js"></script>
+</body>
+</html>

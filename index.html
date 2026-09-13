@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ferry &amp; Fable — Everyday Essentials</title>
+<meta name="description" content="Simple online shop. Browse, add to cart, order by WhatsApp or Cash on Delivery — no account needed. Fast delivery across Bangladesh.">
+
+<!-- Favicon -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230f172a'/%3E%3Ctext x='50%25' y='54%25' font-family='serif' font-size='18' font-weight='bold' fill='%23ea580c' dominant-baseline='middle' text-anchor='middle'%3EF%3C/text%3E%3C/svg%3E">
+
+<!-- Open Graph / Social Sharing Previews -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Ferry &amp; Fable — Everyday Essentials">
+<meta property="og:description" content="Shop relaxed linen, tailored chinos &amp; everyday staples. Fast cash on delivery nationwide.">
+<meta property="og:image" content="https://images.unsplash.com/photo-1607083206968-13611e3d76db?w=1200&q=80">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Ferry &amp; Fable — Everyday Essentials">
+<meta name="twitter:description" content="Shop relaxed linen, tailored chinos &amp; everyday staples. Fast cash on delivery nationwide.">
+<meta name="twitter:image" content="https://images.unsplash.com/photo-1607083206968-13611e3d76db?w=1200&q=80">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ============ HEADER ============ -->
+<header class="site-header" id="siteHeader">
+  <div class="header-inner">
+    <button class="nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+
+    <a href="#top" class="logo" id="siteLogo">
+      <img id="siteLogoImg" src="" alt="Shop Logo" style="display:none;max-height:44px;width:auto;object-fit:contain;vertical-align:middle;">
+      <div class="logo-text-group" id="siteLogoText">
+        <p class="logo-name">Ferry <span>&amp;</span> Fable</p>
+        <span class="brand-tag">Everyday Essentials</span>
+      </div>
+    </a>
+
+    <nav class="main-nav" id="mainNav">
+      <a href="#shop" class="nav-link" data-nav-dept="all">All Shop</a>
+      <a href="#shop" class="nav-link" data-nav-dept="Men">Men</a>
+      <a href="#shop" class="nav-link" data-nav-dept="Women">Women</a>
+      <a href="#categories" class="nav-link">Categories</a>
+      <a href="#how-it-works" class="nav-link">How to order</a>
+      <button type="button" class="nav-link nav-track-btn" id="navTrackOrderBtn">🔍 Track Order</button>
+    </nav>
+
+    <div class="header-actions">
+      <div class="search-box">
+        <input type="text" id="searchInput" placeholder="Search products…" aria-label="Search products">
+      </div>
+      <button class="cart-btn" id="cartToggle" aria-label="Open cart">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 4h2l2.4 12.4a2 2 0 0 0 2 1.6h7.2a2 2 0 0 0 2-1.6L21 8H6"/><circle cx="9.5" cy="20.5" r="1.3" fill="currentColor" stroke="none"/><circle cx="17.5" cy="20.5" r="1.3" fill="currentColor" stroke="none"/></svg>
+        <span class="cart-count" id="cartCount">0</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ============ HERO ============ -->
+<section class="hero" id="top">
+  <div class="hero-inner">
+    <p class="hero-eyebrow" id="heroEyebrow">No sign-up. No password. Just shopping.</p>
+    <h1 class="hero-title" id="heroTitle">Things you actually<br>need, at prices that<br>make sense.</h1>
+    <p class="hero-sub" id="heroSub">Browse the catalog, drop what you like into your bag, and check out in one message. Cash on delivery available across Bangladesh.</p>
+    <div class="hero-cta">
+      <a href="#shop" class="btn btn-primary" id="heroBtn1">Start browsing</a>
+      <a href="#how-it-works" class="btn btn-ghost" id="heroBtn2">How ordering works</a>
+    </div>
+    <dl class="hero-stats">
+      <div><dt id="heroStat1Val">500+</dt><dd id="heroStat1Label">orders delivered</dd></div>
+      <div><dt id="heroStat2Val">64</dt><dd id="heroStat2Label">districts reached</dd></div>
+      <div><dt id="heroStat3Val">24h</dt><dd id="heroStat3Label">order confirmation</dd></div>
+    </dl>
+  </div>
+  <div class="hero-art" aria-hidden="true">
+    <div class="art-card card-1" id="heroCard1"></div>
+    <div class="art-card card-2" id="heroCard2"></div>
+    <div class="art-card card-3"></div>
+  </div>
+</section>
+
+<!-- ============ DEPARTMENT SHOWCASE (MEN & WOMEN) ============ -->
+<section class="department-showcase" id="departmentShowcase">
+  <div class="section-inner">
+    <div class="showcase-grid">
+      <!-- Men's Card -->
+      <div class="showcase-card showcase-men" id="menShowcaseCard">
+        <div class="showcase-bg" id="menShowcaseBg"></div>
+        <div class="showcase-overlay"></div>
+        <div class="showcase-content">
+          <span class="showcase-tag">Featured Collection</span>
+          <h3 id="menShowcaseTitle">Men's Collection</h3>
+          <p id="menShowcaseSub">Relaxed linen shirts, tailored chinos &amp; everyday staples.</p>
+          <div class="showcase-subcats" id="menShowcaseSubcats">
+            <!-- populated by JS -->
+          </div>
+          <button class="btn btn-showcase" id="menShowcaseBtn" data-dept="Men">Explore Men &rarr;</button>
+        </div>
+      </div>
+
+      <!-- Women's Card -->
+      <div class="showcase-card showcase-women" id="womenShowcaseCard">
+        <div class="showcase-bg" id="womenShowcaseBg"></div>
+        <div class="showcase-overlay"></div>
+        <div class="showcase-content">
+          <span class="showcase-tag">Featured Collection</span>
+          <h3 id="womenShowcaseTitle">Women's Collection</h3>
+          <p id="womenShowcaseSub">Flowy linen dresses, breathable poplin shirts &amp; scarves.</p>
+          <div class="showcase-subcats" id="womenShowcaseSubcats">
+            <!-- populated by JS -->
+          </div>
+          <button class="btn btn-showcase" id="womenShowcaseBtn" data-dept="Women">Explore Women &rarr;</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DEPARTMENTS & CATEGORIES ============ -->
+<section class="categories" id="categories">
+  <div class="section-inner">
+    <!-- Department Switcher Tabs -->
+    <div class="dept-tabs" id="deptTabs">
+      <button class="dept-tab active" data-department="all">All items</button>
+      <button class="dept-tab" data-department="Men">Men</button>
+      <button class="dept-tab" data-department="Women">Women</button>
+      <button class="dept-tab" data-department="Home & Living">Home &amp; Living</button>
+    </div>
+
+
+    <!-- Category / Subcategory Chips -->
+    <div class="cat-strip" id="catStrip">
+      <button class="cat-chip active" data-category="all">All categories</button>
+      <!-- filled by JS -->
+    </div>
+  </div>
+</section>
+
+<!-- ============ SHOP GRID ============ -->
+<section class="shop" id="shop">
+  <div class="section-inner">
+    <div class="shop-head">
+      <div>
+        <h2 id="catalogTitle">The catalog</h2>
+        <p class="catalog-sub" id="catalogSub">Click any product to view details, sizes, colors &amp; full gallery.</p>
+      </div>
+      <p id="resultCount" class="result-count"></p>
+    </div>
+    <div class="product-grid" id="productGrid">
+      <!-- filled by JS -->
+    </div>
+    <p class="empty-state" id="emptyState" hidden>No products match your search or filter. Try a different keyword.</p>
+  </div>
+</section>
+
+<!-- ============ HOW IT WORKS ============ -->
+<section class="how-it-works" id="how-it-works">
+  <div class="section-inner">
+    <h2>Ordering takes three steps</h2>
+    <ol class="steps">
+      <li>
+        <span class="step-num">1</span>
+        <h3>Pick size &amp; color</h3>
+        <p>Click any item to view all photos, choose your fit and shades.</p>
+      </li>
+      <li>
+        <span class="step-num">2</span>
+        <h3>Fill in your details</h3>
+        <p>Name, phone number, and delivery address — that's all we need.</p>
+      </li>
+      <li>
+        <span class="step-num">3</span>
+        <h3>Confirm on WhatsApp</h3>
+        <p>Your order opens with chosen items, sizes and colors pre-filled. You just hit send.</p>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- ============ CONTACT / FOOTER ============ -->
+<footer class="site-footer" id="contact">
+  <div class="section-inner footer-grid">
+    <div class="footer-brand">
+      <div class="footer-logo-wrap">
+        <img id="footerLogoImg" src="" alt="Shop Logo" style="display:none;max-height:48px;width:auto;object-fit:contain;">
+        <div class="logo footer-logo logo-text-group" id="footerLogoText">
+          <p class="logo-name">Ferry <span>&amp;</span> Fable</p>
+          <span class="brand-tag">Everyday Essentials</span>
+        </div>
+      </div>
+      <p>A small online shop for everyday things. Cash on delivery available nationwide, no account required.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Get in touch</h4>
+      <ul>
+        <li><a href="tel:+8801700000000" id="footerPhone">+880 1700000000</a></li>
+        <li><a href="https://wa.me/8801700000000" target="_blank" rel="noopener" id="footerWa">WhatsApp us</a></li>
+        <li><a href="mailto:hello@ferryandfable.example">hello@ferryandfable.example</a></li>
+        <li><a href="javascript:void(0)" id="footerTrackOrderBtn" style="font-weight:600;color:var(--coral,#c2593f)">🔍 Track your order</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Shop</h4>
+      <ul>
+        <li><a href="#shop" data-nav-dept="all">All products</a></li>
+        <li><a href="#shop" data-nav-dept="Men">Men's collection</a></li>
+        <li><a href="#shop" data-nav-dept="Women">Women's collection</a></li>
+        <li><a href="#how-it-works">How to order</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Customer Care</h4>
+      <ul>
+        <li><a href="javascript:void(0)" onclick="openPolicyModal('returns')">Returns &amp; Exchanges</a></li>
+        <li><a href="javascript:void(0)" onclick="openPolicyModal('shipping')">Shipping &amp; Delivery</a></li>
+        <li><a href="javascript:void(0)" onclick="openPolicyModal('privacy')">Privacy Policy</a></li>
+        <li><a href="javascript:void(0)" onclick="openPolicyModal('terms')">Terms of Service</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; <span id="year"></span> Ferry &amp; Fable. All rights reserved.</p>
+    <a href="dashboard.html" class="owner-link" aria-label="Owner dashboard" style="opacity:0.3;transition:opacity 0.2s">Owner Portal 🔒</a>
+  </div>
+</footer>
+
+<!-- ============ PRODUCT DETAIL MODAL ============ -->
+<div class="modal-overlay" id="productDetailModal">
+  <div class="modal modal-product" role="dialog" aria-modal="true" aria-label="Product details">
+    <button class="modal-close" id="productModalClose" aria-label="Close product details">&times;</button>
+    <div class="product-detail-layout">
+
+      <!-- Left: Interactive Gallery -->
+      <div class="product-detail-gallery">
+        <div class="gallery-main-wrap">
+          <img id="modalMainImage" src="" alt="Product view">
+          <span class="detail-tag" id="modalProductTag" style="display:none"></span>
+          <span class="detail-stock-badge" id="modalStockBadge">In stock</span>
+        </div>
+        <div class="gallery-thumbs" id="modalThumbsList">
+          <!-- Thumbnails dynamically rendered -->
+        </div>
+      </div>
+
+      <!-- Right: Product Information & Selectors -->
+      <div class="product-detail-info">
+        <div class="detail-meta">
+          <span class="detail-dept" id="modalProductDept">Department</span>
+          <span class="detail-sep">•</span>
+          <span class="detail-cat" id="modalProductCat">Category</span>
+          <span class="detail-subcat-wrap" id="modalSubcatWrap" style="display:none">
+            <span class="detail-sep">•</span>
+            <span class="detail-subcat" id="modalProductSubcat">Subcategory</span>
+          </span>
+        </div>
+
+        <h2 class="detail-title" id="modalProductName">Product Name</h2>
+
+        <div class="detail-price-row">
+          <span class="detail-price" id="modalProductPrice">৳0</span>
+          <span class="detail-old-price" id="modalProductOldPrice"></span>
+          <span class="detail-discount-badge" id="modalDiscountBadge" style="display:none"></span>
+        </div>
+
+        <!-- Color Selector -->
+        <div class="detail-option-group" id="modalColorGroup" style="display:none">
+          <div class="option-header">
+            <span class="option-title">Color:</span>
+            <strong class="option-selected-val" id="selectedColorName">—</strong>
+          </div>
+          <div class="option-swatches" id="modalColorSwatches">
+            <!-- color pills rendered by JS -->
+          </div>
+        </div>
+
+        <!-- Size Selector -->
+        <div class="detail-option-group" id="modalSizeGroup" style="display:none">
+          <div class="option-header">
+            <span class="option-title">Size:</span>
+            <strong class="option-selected-val" id="selectedSizeName">—</strong>
+          </div>
+          <div class="option-sizes" id="modalSizeChips">
+            <!-- size buttons rendered by JS -->
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div class="detail-desc">
+          <h4>Details &amp; Materials</h4>
+          <p id="modalProductDesc"></p>
+        </div>
+
+        <!-- Real-time Stock Status & Low Stock Alert -->
+        <div class="modal-stock-alert" id="modalStockAlert" style="display:none"></div>
+
+        <!-- Quantity & Add to Cart -->
+        <div class="detail-actions">
+          <div class="quantity-picker" id="modalQtyPicker">
+            <button type="button" class="qty-stepper" id="qtyDecBtn" aria-label="Decrease quantity">&minus;</button>
+            <span class="qty-value" id="modalQtyVal">1</span>
+            <button type="button" class="qty-stepper" id="qtyIncBtn" aria-label="Increase quantity">&plus;</button>
+          </div>
+          <button type="button" class="btn btn-primary btn-block" id="modalAddToCartBtn">Add to bag</button>
+        </div>
+
+        <!-- Share Product Link -->
+        <div class="detail-share-row">
+          <button type="button" class="btn-share-link" id="modalShareBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+            Copy product link
+          </button>
+          <span class="share-copied-msg" id="shareCopiedMsg" style="display:none">✓ Link copied!</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ CART DRAWER ============ -->
+<div class="drawer-overlay" id="drawerOverlay"></div>
+<aside class="cart-drawer" id="cartDrawer" aria-label="Shopping cart">
+  <div class="drawer-head">
+    <h2>Your bag</h2>
+    <button class="drawer-close" id="cartClose" aria-label="Close cart">&times;</button>
+  </div>
+
+  <div class="cart-items" id="cartItems">
+    <!-- filled by JS -->
+  </div>
+
+  <div class="cart-empty" id="cartEmpty">
+    <p>Your bag is empty.</p>
+    <a href="#shop" class="btn btn-primary" id="cartEmptyBrowse">Browse products</a>
+  </div>
+
+  <div class="cart-summary" id="cartSummary">
+    <div class="summary-row">
+      <span>Subtotal</span>
+      <span id="cartSubtotal">৳0</span>
+    </div>
+    <p class="summary-note" id="cartDeliveryNote">Delivery fee is confirmed at checkout based on your address.</p>
+    <button class="btn btn-primary btn-block" id="checkoutBtn">Checkout</button>
+  </div>
+</aside>
+
+<!-- ============ CHECKOUT MODAL ============ -->
+<div class="modal-overlay" id="checkoutOverlay">
+  <div class="modal" role="dialog" aria-modal="true" aria-label="Checkout">
+    <button class="modal-close" id="checkoutClose" aria-label="Close checkout">&times;</button>
+    <h2>Complete your order</h2>
+    <p class="modal-sub" id="checkoutModalSub">Choose whether to place your order directly on the store or via WhatsApp.</p>
+
+    <form id="checkoutForm">
+      <!-- Order Method Selector (Direct Web vs WhatsApp) -->
+      <div class="order-method-box">
+        <label class="order-method-label">Select Order Method <span class="req">*</span></label>
+        <div class="order-method-cards">
+          <label class="order-method-card active" id="methodCardWeb">
+            <input type="radio" name="orderMethod" value="inweb" checked>
+            <div class="method-card-body">
+              <span class="method-card-icon">🛍️</span>
+              <div>
+                <strong>Direct Web Order</strong>
+                <small>Submitted directly to store dashboard</small>
+              </div>
+            </div>
+          </label>
+          <label class="order-method-card" id="methodCardWa">
+            <input type="radio" name="orderMethod" value="whatsapp">
+            <div class="method-card-body">
+              <span class="method-card-icon">💬</span>
+              <div>
+                <strong>WhatsApp Order</strong>
+                <small>Opens WhatsApp with cart pre-filled</small>
+              </div>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <label>
+        Full name
+        <input type="text" id="custName" required placeholder="e.g. Ayesha Rahman">
+      </label>
+      <label>
+        Phone number
+        <input type="tel" id="custPhone" required placeholder="e.g. 01700-000000">
+      </label>
+      <label>
+        Delivery address
+        <textarea id="custAddress" required rows="3" placeholder="House, road, area, city"></textarea>
+      </label>
+      <label>
+        Payment method
+        <select id="custPayment">
+          <option value="Cash on Delivery">Cash on Delivery</option>
+          <option value="bKash">bKash</option>
+          <option value="Nagad">Nagad</option>
+        </select>
+      </label>
+
+
+      <div class="modal-summary" id="modalSummary"></div>
+
+      <button type="submit" class="btn btn-primary btn-block" id="checkoutSubmitBtn">Confirm &amp; Place Web Order</button>
+    </form>
+  </div>
+</div>
+
+<!-- ============ ORDER SUCCESS MODAL ============ -->
+<div class="modal-overlay" id="orderSuccessModal">
+  <div class="modal modal-success-box" role="dialog" aria-modal="true" aria-label="Order Placed">
+    <div class="success-icon-wrap">
+      <div class="success-icon">✓</div>
+    </div>
+    <h2>Order Placed Successfully!</h2>
+    <p class="success-order-id">Order ID: <strong id="successOrderId">#ORD-0000</strong></p>
+    <p class="success-msg">Thank you, <strong id="successCustName">Customer</strong>! Your order has been submitted directly to our store dashboard.</p>
+
+    <!-- PDF Proof Download Notice -->
+    <div class="order-proof-notice">
+      <div class="opn-icon">📄</div>
+      <div class="opn-text">
+        <strong>Official Order Proof PDF Downloaded!</strong>
+        <p>A receipt has been downloaded automatically. Please keep it as proof of your order. If your delivery is ever delayed or you need quick support, show this receipt or your Order ID to our store owner on WhatsApp.</p>
+      </div>
+    </div>
+
+    <div class="success-summary-box" id="successSummaryBox">
+      <!-- items breakdown -->
+    </div>
+
+    <div class="success-actions" style="display:flex;flex-direction:column;gap:8px">
+      <button type="button" class="btn btn-ghost btn-block" id="successDownloadPdfBtn" style="border:1.5px solid var(--line);font-weight:600">⬇️ Download PDF Proof Again</button>
+      <button type="button" class="btn btn-ghost btn-block" id="successOwnerWaBtn" style="border:1.5px solid #25d366;color:#128c7e;font-weight:600">💬 Contact Owner on WhatsApp with Order ID</button>
+      <button type="button" class="btn btn-primary btn-block" id="successCloseBtn">Continue Shopping</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ TRACK / SEARCH ORDER MODAL ============ -->
+<div class="modal-overlay" id="trackOrderModal">
+  <div class="modal modal-track-box" role="dialog" aria-modal="true" aria-label="Track Order">
+    <button class="modal-close" id="trackModalClose" aria-label="Close track order">&times;</button>
+    <h2>Track Your Order</h2>
+    <p class="modal-sub">Search your order using your Order ID (e.g. ORD-0001) to see live status and download your official receipt.</p>
+
+    <div class="track-form-wrap">
+      <div class="track-input-row">
+        <input type="text" id="trackOrderIdInput" placeholder="Enter Order ID (e.g. ORD-0001-...)" class="track-input" autocomplete="off">
+      </div>
+      <div class="track-input-row" style="margin-top:8px">
+        <input type="tel" id="trackPhoneInput" placeholder="Phone number used at checkout" class="track-input" autocomplete="tel">
+        <button type="button" class="btn btn-primary" id="trackSearchBtn">Search</button>
+      </div>
+      <p class="track-hint">Enter your Order ID and the phone number you provided at checkout.</p>
+    </div>
+
+    <div id="trackResultContainer" style="display:none;margin-top:16px;">
+      <!-- Populated dynamically by JS -->
+    </div>
+  </div>
+</div>
+
+
+
+<!-- ============ POLICY MODAL ============ -->
+<div class="modal-overlay" id="policyModal">
+  <div class="modal modal-policy" role="dialog" aria-modal="true" aria-label="Store Policies" style="max-width:680px;width:92%;max-height:85vh;overflow-y:auto;padding:32px 28px">
+    <button class="modal-close" id="policyModalClose" onclick="closePolicyModal()" aria-label="Close">&times;</button>
+    <h2 style="font-size:1.4rem;color:var(--navy);margin-bottom:14px">Store Policies &amp; Terms</h2>
+    <div class="policy-tabs" style="display:flex;gap:8px;border-bottom:1px solid var(--line);margin-bottom:20px;padding-bottom:10px;overflow-x:auto">
+      <button type="button" class="btn btn-ghost btn-sm policy-tab active" data-policy="returns" onclick="switchPolicyTab('returns')">Returns &amp; Exchanges</button>
+      <button type="button" class="btn btn-ghost btn-sm policy-tab" data-policy="shipping" onclick="switchPolicyTab('shipping')">Shipping &amp; Delivery</button>
+      <button type="button" class="btn btn-ghost btn-sm policy-tab" data-policy="privacy" onclick="switchPolicyTab('privacy')">Privacy Policy</button>
+      <button type="button" class="btn btn-ghost btn-sm policy-tab" data-policy="terms" onclick="switchPolicyTab('terms')">Terms of Service</button>
+    </div>
+    <div class="policy-content" id="policyContent" style="font-size:0.92rem;line-height:1.65;color:var(--ink)">
+      <!-- Content populated by switchPolicyTab() -->
+    </div>
+  </div>
+</div>
+
+<!-- ============ TOAST ============ -->
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<script src="products.js"></script>
+<script src="ff-db.js"></script>
+<script src="ff-data.js"></script>
+<script src="migrate-catalog.js"></script>
+<script src="stock_engine.js"></script>
+<script src="script.js"></script>
+</body>
+</html>

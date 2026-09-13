@@ -1,0 +1,13 @@
+# Environment variables (keep your private credentials local)
+.env
+.env.local
+
+# Operating System & Editor Files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.log
+
+# Node dependencies (if used in future)
+node_modules/
