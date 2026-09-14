@@ -1694,52 +1694,12 @@ async function handleCheckoutSubmit(e) {
 }
 
 /* ============================================================
-   ORDER TRACKING & SEARCH BY ORDER ID
+   ORDER TRACKING & SEARCH (BY ORDER ID OR PHONE NUMBER)
    ============================================================ */
-async function searchAndRenderTrackOrder(rawInput) {
-  const query = (rawInput || "").trim().toUpperCase().replace(/^#/, "");
-  const container = $("#trackResultContainer");
-  if (!container) return;
+let _currentTrackedOrders = [];
 
-  if (!query) {
-    container.style.display = "block";
-    container.innerHTML = `<p style="color:var(--red,#ef4444);font-size:.86rem;padding:8px 0">Please enter a valid Order ID (e.g. ORD-0001).</p>`;
-    return;
-  }
-
-  // Read the phone number from the new verification field
-  const trackPhone = (($("#trackPhoneInput") || {}).value || "").trim();
-  const allOrders = loadOrders();
-  const localMatch = allOrders.find(o => {
-    const cleanId = (o.id || "").toUpperCase().replace(/^#/, "");
-    return cleanId === query || cleanId.endsWith(query) || (o.id || "").toUpperCase().includes(query);
-  });
-
-  let found = null;
-  if (localMatch) {
-    // If phone was provided and matches, unmask; otherwise mask customer details
-    const storedPhone = (localMatch.customer?.phone || "").replace(/\D/g, "");
-    const cleanQueryPhone = (trackPhone || "").replace(/\D/g, "");
-    const isPhoneMatched = cleanQueryPhone.length >= 6 && storedPhone.includes(cleanQueryPhone);
-    found = {
-      ...localMatch,
-      masked: !isPhoneMatched,
-      customer: isPhoneMatched ? localMatch.customer : null
-    };
-  }
-
-  container.style.display = "block";
-
-  if (!found) {
-    container.innerHTML = `
-      <div class="track-not-found" style="background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:16px;text-align:center">
-        <p style="font-weight:700;color:#991b1b;margin-bottom:6px">Order Not Found</p>
-        <p style="font-size:.84rem;color:#7f1d1d;line-height:1.5">No order matches <strong>#${escHtml(query)}</strong>.<br>Please double check the Order ID and phone number entered.</p>
-      </div>`;
-    return;
-  }
-
-  const d = new Date(found.date);
+function buildTrackOrderCardHtml(found) {
+  const d = new Date(found.date || Date.now());
   const dateStr = d.toLocaleDateString("en-BD", { day: "2-digit", month: "short", year: "numeric" });
   const timeStr = d.toLocaleTimeString("en-BD", { hour: "2-digit", minute: "2-digit" });
 
@@ -1805,7 +1765,7 @@ async function searchAndRenderTrackOrder(rawInput) {
     `;
   }
 
-  container.innerHTML = `
+  return `
     <div class="track-order-card" style="background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:18px;box-shadow:0 2px 8px rgba(0,0,0,.06)">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--line)">
         <div>
@@ -1855,9 +1815,38 @@ async function searchAndRenderTrackOrder(rawInput) {
       </div>
     </div>
   `;
+}
 
-  // Wire Download PDF button
-  const pdfBtn = container.querySelector("#trackCardPdfBtn");
+function renderTrackOrderIndex(selectedIndex) {
+  const container = $("#trackResultContainer");
+  if (!container || !_currentTrackedOrders.length) return;
+
+  const found = _currentTrackedOrders[selectedIndex] || _currentTrackedOrders[0];
+  let selectorHtml = "";
+
+  if (_currentTrackedOrders.length > 1) {
+    selectorHtml = `
+      <div style="margin-bottom:14px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:12px 14px">
+        <div style="font-weight:700;color:#166534;font-size:.86rem;margin-bottom:8px">
+          📦 Found ${_currentTrackedOrders.length} orders for this phone number:
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          ${_currentTrackedOrders.map((ord, idx) => {
+            const isAct = idx === selectedIndex;
+            const d = new Date(ord.date || Date.now());
+            const dt = d.toLocaleDateString("en-BD", { day: "2-digit", month: "short" });
+            return `<button type="button" class="btn ${isAct ? 'btn-primary' : 'btn-ghost'}" style="padding:5px 12px;font-size:.78rem;border-radius:6px;cursor:pointer" onclick="selectTrackedOrder(${idx})">#${escHtml(ord.id)} (${dt})</button>`;
+          }).join("")}
+        </div>
+      </div>
+    `;
+  }
+
+  container.innerHTML = selectorHtml + `<div id="trackActiveCardContainer"></div>`;
+  const activeContainer = container.querySelector("#trackActiveCardContainer");
+  activeContainer.innerHTML = buildTrackOrderCardHtml(found);
+
+  const pdfBtn = activeContainer.querySelector("#trackCardPdfBtn");
   if (pdfBtn) {
     pdfBtn.onclick = () => {
       if (found.masked) {
@@ -1868,6 +1857,113 @@ async function searchAndRenderTrackOrder(rawInput) {
       downloadOrderPdf(found, getSettings());
     };
   }
+}
+
+window.selectTrackedOrder = function(idx) {
+  renderTrackOrderIndex(idx);
+};
+
+async function searchAndRenderTrackOrder(rawInput) {
+  const container = $("#trackResultContainer");
+  if (!container) return;
+
+  let orderIdVal = (rawInput !== undefined && rawInput !== "" ? rawInput : ($("#trackOrderIdInput")?.value || "")).trim();
+  let phoneVal = (($("#trackPhoneInput") || {}).value || "").trim();
+
+  // Smart auto-detection: if user typed a phone number in the Order ID box
+  const isNumericPhone = /^[+]?[\d\s-]{7,16}$/.test(orderIdVal) && !orderIdVal.toUpperCase().startsWith("ORD");
+  if (isNumericPhone && !phoneVal) {
+    phoneVal = orderIdVal;
+    orderIdVal = "";
+    if ($("#trackPhoneInput")) $("#trackPhoneInput").value = phoneVal;
+    if ($("#trackOrderIdInput")) $("#trackOrderIdInput").value = "";
+  }
+
+  const queryId = orderIdVal.toUpperCase().replace(/^#/, "");
+  const cleanPhone = phoneVal.replace(/\D/g, "");
+
+  if (!queryId && !cleanPhone) {
+    container.style.display = "block";
+    container.innerHTML = `
+      <div class="track-not-found" style="background:#fffbeb;border:1px solid #fcd34d;border-radius:10px;padding:14px;text-align:center">
+        <p style="font-weight:700;color:#92400e;margin-bottom:4px">Please enter your Order ID or Phone Number</p>
+        <p style="font-size:.84rem;color:#78350f">Lost your Order ID? Enter the phone number used at checkout to find your order.</p>
+      </div>`;
+    return;
+  }
+
+  container.style.display = "block";
+  container.innerHTML = `
+    <div style="text-align:center;padding:24px 16px;color:var(--ink-soft);font-size:.88rem">
+      <div style="display:inline-block;width:24px;height:24px;border:3px solid var(--line);border-top-color:var(--primary,#0f766e);border-radius:50%;animation:spin .8s linear infinite;margin-bottom:8px"></div>
+      <div>Searching for your order...</div>
+    </div>
+  `;
+
+  let ordersFound = [];
+
+  // 1. Try server endpoint first (cross-device database support)
+  try {
+    const params = new URLSearchParams();
+    if (queryId) params.append("orderId", queryId);
+    if (cleanPhone) params.append("phone", cleanPhone);
+
+    const resp = await fetch(`/api/orders/track?${params.toString()}`);
+    if (resp.ok) {
+      const data = await resp.json();
+      if (Array.isArray(data) && data.length > 0) {
+        ordersFound = data;
+      }
+    }
+  } catch (err) {
+    console.warn("Server tracking request failed, checking local cache:", err);
+  }
+
+  // 2. Fallback to localStorage if server returns nothing or offline
+  if (ordersFound.length === 0) {
+    const allOrders = loadOrders();
+    const phoneSuffix = cleanPhone.length >= 6 ? cleanPhone.slice(-8) : cleanPhone;
+
+    const matched = allOrders.filter(o => {
+      const cleanId = (o.id || "").toUpperCase().replace(/^#/, "");
+      const storedPhone = (o.customer?.phone || "").replace(/\D/g, "");
+
+      const idMatches = queryId ? (cleanId === queryId || cleanId.endsWith(queryId) || (o.id || "").toUpperCase().includes(queryId)) : true;
+      const phoneMatches = phoneSuffix ? (storedPhone.endsWith(phoneSuffix) || phoneSuffix.endsWith(storedPhone.slice(-8))) : true;
+
+      if (queryId && phoneSuffix) return idMatches && phoneMatches;
+      if (queryId) return idMatches;
+      if (phoneSuffix) return phoneMatches;
+      return false;
+    });
+
+    ordersFound = matched.map(localMatch => {
+      const storedPhone = (localMatch.customer?.phone || "").replace(/\D/g, "");
+      const isPhoneMatched = phoneSuffix.length >= 6 && (storedPhone.endsWith(phoneSuffix) || phoneSuffix.endsWith(storedPhone.slice(-8)));
+      return {
+        ...localMatch,
+        masked: !isPhoneMatched,
+        customer: isPhoneMatched ? localMatch.customer : null
+      };
+    });
+  }
+
+  if (ordersFound.length === 0) {
+    let termDesc = "";
+    if (queryId && phoneVal) termDesc = `Order #${escHtml(queryId)} with phone ${escHtml(phoneVal)}`;
+    else if (queryId) termDesc = `Order #${escHtml(queryId)}`;
+    else termDesc = `phone ${escHtml(phoneVal)}`;
+
+    container.innerHTML = `
+      <div class="track-not-found" style="background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:18px;text-align:center">
+        <p style="font-weight:700;color:#991b1b;margin-bottom:6px">No Order Found</p>
+        <p style="font-size:.84rem;color:#7f1d1d;line-height:1.5">No orders matched <strong>${termDesc}</strong>.<br>Please check the phone number or Order ID and try again.</p>
+      </div>`;
+    return;
+  }
+
+  _currentTrackedOrders = ordersFound;
+  renderTrackOrderIndex(0);
 }
 
 /* ============================================================
@@ -2043,15 +2139,14 @@ async function init() {
   }
   if ($("#trackSearchBtn")) {
     $("#trackSearchBtn").addEventListener("click", () => {
-      const inp = $("#trackOrderIdInput");
-      searchAndRenderTrackOrder(inp ? inp.value : "");
+      searchAndRenderTrackOrder();
     });
   }
   if ($("#trackOrderIdInput")) {
     $("#trackOrderIdInput").addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
         e.preventDefault();
-        searchAndRenderTrackOrder(e.target.value);
+        searchAndRenderTrackOrder();
       }
     });
   }
@@ -2060,7 +2155,7 @@ async function init() {
     $("#trackPhoneInput").addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
         e.preventDefault();
-        searchAndRenderTrackOrder(($("#trackOrderIdInput") || {}).value || "");
+        searchAndRenderTrackOrder();
       }
     });
   }

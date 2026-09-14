@@ -477,17 +477,17 @@
   <div class="modal modal-track-box" role="dialog" aria-modal="true" aria-label="Track Order">
     <button class="modal-close" id="trackModalClose" aria-label="Close track order">&times;</button>
     <h2>Track Your Order</h2>
-    <p class="modal-sub">Search your order using your Order ID (e.g. ORD-0001) to see live status and download your official receipt.</p>
+    <p class="modal-sub">Track your live order status and download your official receipt using your Order ID or checkout phone number.</p>
 
     <div class="track-form-wrap">
       <div class="track-input-row">
-        <input type="text" id="trackOrderIdInput" placeholder="Enter Order ID (e.g. ORD-0001-...)" class="track-input" autocomplete="off">
+        <input type="text" id="trackOrderIdInput" placeholder="Order ID (e.g. ORD-0001, or leave blank if lost)" class="track-input" autocomplete="off">
       </div>
       <div class="track-input-row" style="margin-top:8px">
-        <input type="tel" id="trackPhoneInput" placeholder="Phone number used at checkout" class="track-input" autocomplete="tel">
+        <input type="tel" id="trackPhoneInput" placeholder="Checkout phone number (e.g. 017...)" class="track-input" autocomplete="tel">
         <button type="button" class="btn btn-primary" id="trackSearchBtn">Search</button>
       </div>
-      <p class="track-hint">Enter your Order ID and the phone number you provided at checkout.</p>
+      <p class="track-hint">💡 <strong>Lost your Order ID?</strong> Simply enter the phone number you used at checkout to track your order.</p>
     </div>
 
     <div id="trackResultContainer" style="display:none;margin-top:16px;">

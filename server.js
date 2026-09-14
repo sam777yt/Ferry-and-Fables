@@ -153,6 +153,74 @@ app.get("/api/orders", async (req, res) => {
   }
 });
 
+// Orders: Track order by Order ID and/or Phone Number (handles lost Order ID)
+app.get("/api/orders/track", async (req, res) => {
+  try {
+    const rawId = (req.query.orderId || "").trim();
+    const rawPhone = (req.query.phone || "").trim();
+
+    if (!rawId && !rawPhone) {
+      return res.status(400).json({ error: "Please provide an Order ID or Phone Number to track." });
+    }
+
+    const cleanPhone = rawPhone.replace(/\D/g, "");
+    const phoneSuffix = cleanPhone.length >= 8 ? cleanPhone.slice(-8) : cleanPhone;
+
+    let filter = {};
+
+    if (rawId && phoneSuffix) {
+      const cleanId = rawId.toUpperCase().replace(/^#/, "");
+      filter = {
+        $and: [
+          {
+            $or: [
+              { id: new RegExp("^" + cleanId.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "$", "i") },
+              { id: new RegExp(cleanId.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "$", "i") }
+            ]
+          },
+          { "customer.phone": new RegExp(phoneSuffix + "$") }
+        ]
+      };
+    } else if (rawId) {
+      const cleanId = rawId.toUpperCase().replace(/^#/, "");
+      filter = {
+        $or: [
+          { id: new RegExp("^" + cleanId.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "$", "i") },
+          { id: new RegExp(cleanId.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "$", "i") }
+        ]
+      };
+    } else if (phoneSuffix) {
+      filter = { "customer.phone": new RegExp(phoneSuffix + "$") };
+    }
+
+    const orders = await Order.find(filter).sort({ createdAt: -1 }).limit(10);
+
+    if (!orders || orders.length === 0) {
+      return res.status(404).json({ error: "No orders found matching your search details." });
+    }
+
+    const sanitized = orders.map(order => {
+      const orderObj = order.toObject();
+      const storedPhone = (orderObj.customer?.phone || "").replace(/\D/g, "");
+      const isVerified = phoneSuffix.length >= 6 && storedPhone.endsWith(phoneSuffix);
+
+      return {
+        ...orderObj,
+        masked: !isVerified,
+        customer: isVerified ? orderObj.customer : {
+          name: orderObj.customer?.name ? orderObj.customer.name.slice(0, 1) + "***" : "Customer",
+          phone: "••••••" + storedPhone.slice(-4),
+          address: "Protected for privacy"
+        }
+      };
+    });
+
+    res.json(sanitized);
+  } catch (err) {
+    res.status(500).json({ error: "Tracking service error: " + err.message });
+  }
+});
+
 // Orders: Create new order (Direct Web Order)
 app.post("/api/orders", async (req, res) => {
   try {

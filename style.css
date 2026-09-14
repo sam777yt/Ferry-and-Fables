@@ -2156,3 +2156,7 @@ button { font-family: inherit; cursor: pointer; }
   .card-2 { width: 45%; height: 40%; }
   .card-3 { font-size: 0.85rem; }
 }
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
