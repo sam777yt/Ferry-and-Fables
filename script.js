@@ -50,9 +50,8 @@ let CURRENCY = _settings.currency || "৳";
 
 /* Seed localStorage on first visit or version upgrade */
 (function seedData() {
-  if (window.ffSupabaseReady) return;
   const version = localStorage.getItem("ff_catalog_version");
-  if (!version || version !== "3.1") {
+  if (!version || (version !== "3.1" && version !== "3.2")) {
     if (typeof PRODUCTS !== "undefined") {
       localStorage.setItem("ff_products", JSON.stringify(PRODUCTS));
     }
@@ -62,7 +61,7 @@ let CURRENCY = _settings.currency || "৳";
     if (typeof DEFAULT_DEPARTMENTS !== "undefined") {
       localStorage.setItem("ff_departments", JSON.stringify(DEFAULT_DEPARTMENTS));
     }
-    localStorage.setItem("ff_catalog_version", "3.1");
+    localStorage.setItem("ff_catalog_version", "3.2");
   }
 
   if (!localStorage.getItem("ff_hero")) {
@@ -119,9 +118,12 @@ function loadDepartments() {
 
 function getLiveProducts() {
   if (Array.isArray(window.ffProductCache)) return window.ffProductCache;
-  if (window.ffSupabaseReady) return [];
   try {
     const raw = localStorage.getItem("ff_products");
+    if (raw && raw.includes('"id":"p1"') && typeof PRODUCTS !== "undefined" && PRODUCTS.length === 0) {
+      localStorage.removeItem("ff_products");
+      return [];
+    }
     const prods = raw ? JSON.parse(raw) : (typeof PRODUCTS !== "undefined" ? PRODUCTS : []);
     return prods.map(p => {
       let dept = p.department || "All";
@@ -139,7 +141,7 @@ function getLiveProducts() {
       };
     });
   } catch (e) {
-    return window.ffSupabaseReady ? [] : (typeof PRODUCTS !== "undefined" ? PRODUCTS : []);
+    return typeof PRODUCTS !== "undefined" ? PRODUCTS : [];
   }
 }
 
@@ -439,7 +441,25 @@ function renderProducts() {
 
   if (list.length === 0) {
     grid.innerHTML = "";
-    if (empty) empty.hidden = false;
+    if (empty) {
+      empty.hidden = false;
+      if (searchTerm) {
+        empty.innerHTML = `No products matching "<strong>${escHtml(searchTerm)}</strong>". <button type="button" class="btn btn-ghost" id="emptyClearSearchBtn" style="margin-left:8px;padding:4px 10px;font-size:0.82rem;display:inline-block">Clear search</button>`;
+        const clearBtn = document.getElementById("emptyClearSearchBtn");
+        if (clearBtn) {
+          clearBtn.addEventListener("click", () => {
+            searchTerm = "";
+            const si = $("#searchInput");
+            const msi = $("#mobileSearchInput");
+            if (si) si.value = "";
+            if (msi) msi.value = "";
+            renderProducts();
+          });
+        }
+      } else {
+        empty.textContent = "No products match your filter. Try selecting another category.";
+      }
+    }
     return;
   }
   if (empty) empty.hidden = true;
@@ -620,8 +640,8 @@ function openProductModal(id) {
   if (allImages.length > 1) {
     thumbsContainer.style.display = "flex";
     thumbsContainer.innerHTML = allImages.map((imgSrc, idx) => `
-      <button type="button" class="gallery-thumb-btn ${imgSrc === currentModalImage ? "active" : ""}" data-img="${escHtml(imgSrc)}">
-        <img src="${escHtml(imgSrc)}" alt="View ${idx + 1}">
+      <button type="button" class="gallery-thumb-btn ${imgSrc === currentModalImage ? "active" : ""}" data-img="${escHtml(imgSrc)}" aria-label="${escHtml(p.name)} - image ${idx + 1} of ${allImages.length}">
+        <img src="${escHtml(imgSrc)}" alt="${escHtml(p.name)} view ${idx + 1}">
       </button>
     `).join("");
 
@@ -666,7 +686,7 @@ function openProductModal(id) {
     colorGroup.style.display = "block";
     $("#selectedColorName").textContent = currentModalColor;
     swatches.innerHTML = p.colors.map(color => `
-      <button type="button" class="color-swatch-btn ${color === currentModalColor ? "active" : ""}" data-color="${escHtml(color)}">
+      <button type="button" class="color-swatch-btn ${color === currentModalColor ? "active" : ""}" data-color="${escHtml(color)}" aria-pressed="${color === currentModalColor ? 'true' : 'false'}" role="radio" aria-label="Color: ${escHtml(color)}">
         <span class="color-swatch-dot" style="background:${getColorHex(color)}"></span>
         <span>${escHtml(color)}</span>
       </button>
@@ -676,8 +696,12 @@ function openProductModal(id) {
       btn.onclick = () => {
         currentModalColor = btn.dataset.color;
         $("#selectedColorName").textContent = currentModalColor;
-        swatches.querySelectorAll(".color-swatch-btn").forEach(b => b.classList.remove("active"));
+        swatches.querySelectorAll(".color-swatch-btn").forEach(b => {
+          b.classList.remove("active");
+          b.setAttribute("aria-pressed", "false");
+        });
         btn.classList.add("active");
+        btn.setAttribute("aria-pressed", "true");
 
         // AUTOMATIC IMAGE SLIDE TO TARGETED COLOR!
         if (allImages.length > 0) {
@@ -699,7 +723,7 @@ function openProductModal(id) {
     sizeGroup.style.display = "block";
     $("#selectedSizeName").textContent = currentModalSize;
     sizesContainer.innerHTML = p.sizes.map(size => `
-      <button type="button" class="size-chip-btn ${size === currentModalSize ? "active" : ""}" data-size="${escHtml(size)}">
+      <button type="button" class="size-chip-btn ${size === currentModalSize ? "active" : ""}" data-size="${escHtml(size)}" aria-pressed="${size === currentModalSize ? 'true' : 'false'}" role="radio" aria-label="Size: ${escHtml(size)}">
         ${escHtml(size)}
       </button>
     `).join("");
@@ -708,8 +732,12 @@ function openProductModal(id) {
       btn.onclick = () => {
         currentModalSize = btn.dataset.size;
         $("#selectedSizeName").textContent = currentModalSize;
-        sizesContainer.querySelectorAll(".size-chip-btn").forEach(b => b.classList.remove("active"));
+        sizesContainer.querySelectorAll(".size-chip-btn").forEach(b => {
+          b.classList.remove("active");
+          b.setAttribute("aria-pressed", "false");
+        });
         btn.classList.add("active");
+        btn.setAttribute("aria-pressed", "true");
         updateModalStockAlert(p);
       };
     });
@@ -734,11 +762,34 @@ function openProductModal(id) {
   }
 
   modal.classList.add("open");
+
+  // Focus trap: move focus into modal and cycle within it
+  const modalEl = modal.querySelector(".modal-product");
+  if (modalEl) {
+    const focusableSelectors = 'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+    const focusables = [...modalEl.querySelectorAll(focusableSelectors)];
+    if (focusables.length) {
+      // Save the element that triggered modal opening
+      modal._opener = document.activeElement;
+      setTimeout(() => focusables[0].focus(), 50);
+      modal._trapHandler = (e) => {
+        if (e.key !== "Tab") return;
+        const first = focusables[0], last = focusables[focusables.length - 1];
+        if (e.shiftKey) { if (document.activeElement === first) { last.focus(); e.preventDefault(); } }
+        else { if (document.activeElement === last) { first.focus(); e.preventDefault(); } }
+      };
+      modal.addEventListener("keydown", modal._trapHandler);
+    }
+  }
 }
 
 function closeProductModal() {
   const modal = $("#productDetailModal");
-  if (modal) modal.classList.remove("open");
+  if (!modal) return;
+  // Remove focus trap and restore focus to opener
+  if (modal._trapHandler) { modal.removeEventListener("keydown", modal._trapHandler); modal._trapHandler = null; }
+  if (modal._opener && typeof modal._opener.focus === "function") { modal._opener.focus(); modal._opener = null; }
+  modal.classList.remove("open");
 }
 
 // Updates #modalStockAlert based on current selected size/color in modal
@@ -984,9 +1035,12 @@ function openCheckout() {
     .map((item) => {
       const p = getProduct(item.id);
       if (!p) return "";
-      const varInfo = [item.size ? `Size: ${item.size}` : "", item.color ? `Color: ${item.color}` : ""].filter(Boolean);
+      const varInfo = [
+        item.size  ? `Size: ${escHtml(item.size)}`  : "",
+        item.color ? `Color: ${escHtml(item.color)}` : ""
+      ].filter(Boolean);
       const varStr = varInfo.length ? ` <small>(${varInfo.join(", ")})</small>` : "";
-      return `<strong>${item.qty}×</strong> ${p.name}${varStr} — ${money(p.price * item.qty)}`;
+      return `<strong>${item.qty}×</strong> ${escHtml(p.name)}${varStr} — ${money(p.price * item.qty)}`;
     })
     .filter(Boolean)
     .join("<br>");
@@ -1201,7 +1255,23 @@ xref\n0 7\n0000000000 65535 f \n0000000009 00000 n \n0000000058 00000 n \n000000
   return new Blob([pdf], { type: "application/pdf" });
 }
 
-function downloadOrderPdf(order, settings) {
+/* Lazy-load jsPDF on demand — only fetched when user triggers PDF download */
+function ensureJsPDF() {
+  return new Promise((resolve) => {
+    if (window.jspdf && window.jspdf.jsPDF) { resolve(); return; }
+    const s = document.createElement("script");
+    s.src = "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";
+    s.integrity = "sha512-qZvrmS2ekKPF2mSznTQsxqPgnpkI4DNTlrdUmTzrDgektczlKNRRhy5X5AAOnx5S09ydFYWWNSfcEqDTTHgtNA==";
+    s.crossOrigin = "anonymous";
+    s.onload = () => resolve();
+    s.onerror = () => { console.warn("jsPDF CDN load failed — using fallback PDF"); resolve(); };
+    document.head.appendChild(s);
+  });
+}
+
+async function downloadOrderPdf(order, settings) {
+  await ensureJsPDF();
+
   const s = settings || (typeof getSettings === "function" ? getSettings() : {});
   const shopName = s.shopName || "Ferry & Fable";
   const shopPhone = s.whatsapp || "+880 1700000000";
@@ -1486,6 +1556,13 @@ function downloadOrderPdf(order, settings) {
 async function handleCheckoutSubmit(e) {
   e.preventDefault();
 
+  // Anti-spam honeypot verification
+  const honeypot = document.getElementById("hpWebsite")?.value || document.querySelector('[name="website"]')?.value;
+  if (honeypot) {
+    console.warn("Spam submission blocked by honeypot filter.");
+    return;
+  }
+
   const name    = $("#custName").value.trim();
   const phone   = $("#custPhone").value.trim();
   const address = $("#custAddress").value.trim();
@@ -1511,34 +1588,33 @@ async function handleCheckoutSubmit(e) {
   }
 
   if (method === "inweb") {
+    const orderId = generateOrderId();
+    const newOrder = {
+      id: orderId,
+      date: new Date().toISOString(),
+      customer: { name, phone, address },
+      payment,
+      items: cartItems,
+      total,
+      status: "pending"
+    };
 
-    let newOrder;
-    let orderId;
-    try {
-      // Single authoritative path — ffPlaceOrder routes to Supabase when connected,
-      // then automatically falls back to IndexedDB if Supabase is unavailable.
-      const result = await window.ffPlaceOrder({ name, phone, address }, cartItems, payment, "");
-      orderId = result.order_number;
-      newOrder = {
-        id: orderId,
-        date: result.order?.created_at || new Date().toISOString(),
-        customer: { name, phone, address },
-        payment,
-        items: cartItems,
-        total,
-        status: "pending"
-      };
-      // Refresh product catalog so updated stock counts are reflected immediately
-      if (typeof window.ffLoadCatalog === "function") {
-        window.ffProductCache = await window.ffLoadCatalog();
-      } else if (window.FF_DB) {
-        window.ffProductCache = await window.FF_DB.getProducts();
-      }
-    } catch (error) {
-      alert(error.message || "Could not place the order. Please try again.");
-      return;
+    const orders = loadOrders();
+    orders.unshift(newOrder);
+    saveOrders(orders);
+
+    // Save directly to MongoDB Atlas
+    fetch("/api/orders", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newOrder)
+    }).catch(e => console.warn("MongoDB order save notice:", e));
+
+    if (typeof handleOrderStatusStockTransition === "function") {
+      handleOrderStatusStockTransition(newOrder, "", "pending", "Storefront Customer");
     }
 
+    renderProducts();
     lastPlacedOrder = newOrder;
 
     // 🚀 AUTOMATICALLY DOWNLOAD ORDER PROOF AS PDF!
@@ -1633,86 +1709,23 @@ async function searchAndRenderTrackOrder(rawInput) {
 
   // Read the phone number from the new verification field
   const trackPhone = (($("#trackPhoneInput") || {}).value || "").trim();
-  let found;
+  const allOrders = loadOrders();
+  const localMatch = allOrders.find(o => {
+    const cleanId = (o.id || "").toUpperCase().replace(/^#/, "");
+    return cleanId === query || cleanId.endsWith(query) || (o.id || "").toUpperCase().includes(query);
+  });
 
-  if (window.ffSupabaseReady) {
-    // Supabase mode: phone number is required as the ownership verification token
-    if (!trackPhone) {
-      container.style.display = "block";
-      container.innerHTML = `
-        <div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:10px;padding:16px;text-align:center">
-          <p style="font-weight:700;color:#92400e;margin-bottom:6px">📱 Phone Number Required</p>
-          <p style="font-size:.84rem;color:#78350f;line-height:1.5">Please enter the phone number you used when placing this order to verify your identity and view order details.</p>
-        </div>`;
-      return;
-    }
-    try {
-      const trackResult = await window.ffTrackOrder(query, trackPhone);
-      if (trackResult && !trackResult.masked) {
-        found = trackResult;
-      } else {
-        // null = no matching order+phone combo; masked = no phone (shouldn't reach here)
-        container.style.display = "block";
-        container.innerHTML = `
-          <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:16px;text-align:center">
-            <p style="font-weight:700;color:#991b1b;margin-bottom:6px">Order Not Found</p>
-            <p style="font-size:.84rem;color:#7f1d1d;line-height:1.5">No order matches <strong>#${escHtml(query)}</strong> with that phone number.<br>Please double-check your Order ID and make sure you're using the exact phone number entered at checkout.</p>
-          </div>`;
-        return;
-      }
-    } catch (error) {
-      console.error("Order tracking failed", error);
-      container.style.display = "block";
-      container.innerHTML = `<p style="color:var(--red,#ef4444);font-size:.86rem;padding:8px 0">Could not reach the order database. Please try again.</p>`;
-      return;
-    }
-  } else {
-    // Local mode (IndexedDB / localStorage) — check with phone verification token
-    if (window.FF_DB) {
-      try {
-        const dbFound = await window.FF_DB.trackOrder(query, trackPhone);
-        if (dbFound) {
-          found = {
-            id: dbFound.id,
-            date: dbFound.date,
-            status: dbFound.status,
-            paymentStatus: dbFound.paymentStatus,
-            customer: dbFound.customer || null,
-            masked: Boolean(dbFound.masked),
-            items: (dbFound.items || []).map(it => ({
-              name: it.name || it.product_name,
-              size: it.size,
-              color: it.color,
-              qty: it.qty || it.quantity,
-              price: it.price || it.unit_price
-            })),
-            total: dbFound.total,
-            payment: dbFound.notes || "Cash on Delivery"
-          };
-        }
-      } catch (err) {
-        console.warn("FF_DB track order lookup error", err);
-      }
-    }
-  }
-
-  if (!found) {
-    const allOrders = loadOrders();
-    const localMatch = allOrders.find(o => {
-      const cleanId = (o.id || "").toUpperCase().replace(/^#/, "");
-      return cleanId === query || cleanId.endsWith(query) || (o.id || "").toUpperCase().includes(query);
-    });
-    if (localMatch) {
-      // If phone was provided and matches, unmask; otherwise mask customer details
-      const storedPhone = (localMatch.customer?.phone || "").replace(/\D/g, "");
-      const cleanQueryPhone = (trackPhone || "").replace(/\D/g, "");
-      const isPhoneMatched = cleanQueryPhone.length >= 6 && storedPhone.includes(cleanQueryPhone);
-      found = {
-        ...localMatch,
-        masked: !isPhoneMatched,
-        customer: isPhoneMatched ? localMatch.customer : null
-      };
-    }
+  let found = null;
+  if (localMatch) {
+    // If phone was provided and matches, unmask; otherwise mask customer details
+    const storedPhone = (localMatch.customer?.phone || "").replace(/\D/g, "");
+    const cleanQueryPhone = (trackPhone || "").replace(/\D/g, "");
+    const isPhoneMatched = cleanQueryPhone.length >= 6 && storedPhone.includes(cleanQueryPhone);
+    found = {
+      ...localMatch,
+      masked: !isPhoneMatched,
+      customer: isPhoneMatched ? localMatch.customer : null
+    };
   }
 
   container.style.display = "block";
@@ -1861,101 +1874,42 @@ async function searchAndRenderTrackOrder(rawInput) {
    INIT
    ============================================================ */
 async function init() {
-  if (window.FF_DB) {
-    try {
-      await window.FF_DB.init();
+  _settings = getSettings();
+  SHOP_NAME = _settings.shopName || "Ferry & Fable";
+  WHATSAPP_NUMBER = getCleanWhatsAppNumber(_settings.whatsapp || "8801700000000");
+  CURRENCY = _settings.currency || "৳";
 
-      if (typeof window.ffLoadCatalog === "function") {
-        window.ffProductCache = await window.ffLoadCatalog();
-      } else {
-        window.ffProductCache = await window.FF_DB.getProducts();
-      }
-
-      if (typeof window.ffLoadSettings === "function") {
-        const s = await window.ffLoadSettings();
-        if (s) _settings = s;
-      } else {
-        const s = await window.FF_DB.getSettings();
-        if (s) _settings = s;
-      }
-
-      SHOP_NAME = _settings.shopName || "Ferry & Fable";
-      WHATSAPP_NUMBER = getCleanWhatsAppNumber(_settings.whatsapp || "8801700000000");
-      CURRENCY = _settings.currency || "৳";
-
-      // Realtime updates from Supabase Cloud if connected
-      if (typeof window.ffSubscribe === "function" && window.ffSupabaseReady) {
-        window.ffSubscribe(async () => {
-          if (typeof window.ffLoadCatalog === "function") {
-            window.ffProductCache = await window.ffLoadCatalog();
-          }
-          renderDepartmentTabs();
-          renderCategories();
-          renderProducts();
-          renderCart();
-        });
-      }
-
-      // Realtime cross-tab updates from Dashboard
-      window.FF_DB.on("PRODUCTS_CHANGED", async () => {
-        if (typeof window.ffLoadCatalog === "function") {
-          window.ffProductCache = await window.ffLoadCatalog();
-        } else {
-          window.ffProductCache = await window.FF_DB.getProducts();
-        }
+  // Fetch live products from MongoDB Atlas
+  fetch("/api/products")
+    .then(r => r.ok ? r.json() : [])
+    .then(prods => {
+      if (Array.isArray(prods)) {
+        window.ffProductCache = prods;
+        localStorage.setItem("ff_products", JSON.stringify(prods));
         renderDepartmentTabs();
         renderCategories();
         renderProducts();
-        renderCart();
-      });
-      window.FF_DB.on("STOCK_CHANGED", async () => {
-        if (typeof window.ffLoadCatalog === "function") {
-          window.ffProductCache = await window.ffLoadCatalog();
-        } else {
-          window.ffProductCache = await window.FF_DB.getProducts();
-        }
-        renderProducts();
-        renderCart();
-      });
-      window.FF_DB.on("SETTINGS_CHANGED", async (newS) => {
-        if (newS) {
-          _settings = newS;
-          SHOP_NAME = _settings.shopName || "Ferry & Fable";
-          WHATSAPP_NUMBER = getCleanWhatsAppNumber(_settings.whatsapp || "8801700000000");
-          CURRENCY = _settings.currency || "৳";
-          renderProducts();
-        }
-      });
-      window.FF_DB.on("HERO_CHANGED", async () => {
-        applyHeroAndShowcase();
-      });
-      window.FF_DB.on("CATEGORIES_CHANGED", async () => {
-        renderCategories();
-      });
-      window.FF_DB.on("DEPARTMENTS_CHANGED", async () => {
-        renderDepartmentTabs();
-      });
-    } catch (e) {
-      console.warn("FF_DB init notice:", e);
-    }
-  } else if (window.ffSupabaseReady) {
-    try {
-      window.ffProductCache = await window.ffLoadCatalog();
-      window.ffSettingsCache = await window.ffLoadSettings();
+      }
+    })
+    .catch(err => console.warn("MongoDB storefront load notice:", err));
+
+  // Native cross-tab sync when owner updates catalog/settings from dashboard
+  window.addEventListener("storage", (e) => {
+    if (e.key === "ff_products" || e.key === "ff_departments" || e.key === "ff_categories") {
+      renderDepartmentTabs();
+      renderCategories();
+      renderProducts();
+      renderCart();
+    } else if (e.key === "ff_settings") {
       _settings = getSettings();
       SHOP_NAME = _settings.shopName || "Ferry & Fable";
       WHATSAPP_NUMBER = getCleanWhatsAppNumber(_settings.whatsapp || "8801700000000");
       CURRENCY = _settings.currency || "৳";
-      window.ffSubscribe(async () => {
-        window.ffProductCache = await window.ffLoadCatalog();
-        renderProducts();
-        renderCart();
-      });
-    } catch (error) {
-      console.error("Supabase storefront load failed", error);
-      showToast("Could not load the live catalog.");
+      renderProducts();
+    } else if (e.key === "ff_hero") {
+      applyHeroAndShowcase();
     }
-  }
+  });
   $("#year").textContent = new Date().getFullYear();
 
   // ── Apply Logo from settings ──────────────────────────────
@@ -1966,8 +1920,9 @@ async function init() {
     if ($("#footerLogoImg"))  { $("#footerLogoImg").src = logoUrl; $("#footerLogoImg").style.display = "block"; }
     if ($("#footerLogoText")) $("#footerLogoText").style.display = "none";
   } else {
-    const shopNameVal = _settings.shopName || "Ferry & Fable";
-    const formatted = shopNameVal.replace(/\s*&\s*/g, " <span>&amp;</span> ");
+    // Escape shopName before injecting into innerHTML (XSS prevention)
+    const shopNameRaw = escHtml(_settings.shopName || "Ferry & Fable");
+    const formatted = shopNameRaw.replace(/\s*&amp;\s*/g, " <span>&amp;</span> ");
     if ($("#siteLogoText"))  {
       $("#siteLogoText").innerHTML = `<p class="logo-name">${formatted}</p><span class="brand-tag">Everyday Essentials</span>`;
       $("#siteLogoText").style.display = "inline-flex";
@@ -2229,13 +2184,8 @@ async function init() {
         const msg = $("#shareCopiedMsg");
         if (msg) { msg.style.display = "inline"; setTimeout(() => msg.style.display = "none", 2500); }
       }).catch(() => {
-        // Fallback for older browsers
-        const ta = document.createElement("textarea");
-        ta.value = link; ta.style.position = "fixed"; ta.style.opacity = "0";
-        document.body.appendChild(ta); ta.focus(); ta.select();
-        document.execCommand("copy"); document.body.removeChild(ta);
-        const msg = $("#shareCopiedMsg");
-        if (msg) { msg.style.display = "inline"; setTimeout(() => msg.style.display = "none", 2500); }
+        // Graceful fallback: prompt user to copy manually
+        window.prompt("Copy this product link:", link);
       });
     };
   }
@@ -2336,6 +2286,49 @@ if ($("#policyModal")) {
     if (e.target === $("#policyModal")) closePolicyModal();
   });
 }
+
+/* ============================================================
+   MOBILE SEARCH PANEL WIRING
+   ============================================================ */
+(function wireMobileSearch() {
+  const toggleBtn   = document.getElementById("mobileSearchToggle");
+  const panel       = document.getElementById("mobileSearchPanel");
+  const mobileInput = document.getElementById("mobileSearchInput");
+  const closeBtn    = document.getElementById("mobileSearchClose");
+  const desktopInput = document.getElementById("searchInput");
+  if (!toggleBtn || !panel || !mobileInput) return;
+
+  function openPanel() {
+    panel.hidden = false;
+    toggleBtn.setAttribute("aria-expanded", "true");
+    mobileInput.focus();
+  }
+  function closePanel() {
+    panel.hidden = true;
+    toggleBtn.setAttribute("aria-expanded", "false");
+    // Clear mobile search when closing
+    mobileInput.value = "";
+    searchTerm = "";
+    renderProducts();
+  }
+
+  toggleBtn.addEventListener("click", () => {
+    panel.hidden ? openPanel() : closePanel();
+  });
+  closeBtn && closeBtn.addEventListener("click", closePanel);
+
+  // Sync mobile search input with main search logic
+  mobileInput.addEventListener("input", () => {
+    searchTerm = mobileInput.value.toLowerCase().trim();
+    if (desktopInput) desktopInput.value = mobileInput.value;
+    renderProducts();
+  });
+
+  // Close panel on Escape
+  mobileInput.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closePanel();
+  });
+})();
 
 
 document.addEventListener("DOMContentLoaded", init);

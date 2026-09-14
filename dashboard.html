@@ -19,11 +19,6 @@
     <h1>Owner Dashboard</h1>
     <p class="login-sub" id="loginSub">Enter your dashboard password to continue.</p>
     <form id="loginForm">
-      <div id="loginEmailWrap" style="display:none;margin-bottom:12px">
-        <label>Email
-          <input type="email" id="loginEmail" placeholder="admin@example.com" autocomplete="username">
-        </label>
-      </div>
       <label id="loginPasswordLabel">Password
         <input type="password" id="loginPassword" required placeholder="Enter your password" autocomplete="current-password">
       </label>
@@ -900,68 +895,7 @@
           <p class="danger-note" style="margin-top:10px">Images are compressed locally for optimal speed and storage.</p>
         </div>
 
-        <!-- ============ DATABASE & CLOUD SYNC HUB ============ -->
-        <div class="settings-card" id="dbHubCard" style="border: 1.5px solid #6366f1;">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:10px;">
-            <div>
-              <h3 style="margin:0;display:flex;align-items:center;gap:8px">
-                🗄️ Database &amp; Cloud Sync Engine
-              </h3>
-              <p style="font-size:.85rem;color:var(--ink-soft);margin-top:3px;margin-bottom:0;">
-                Unified persistence layer: runs on fast, zero-setup IndexedDB with optional Supabase PostgreSQL sync.
-              </p>
-            </div>
-            <div id="dbStatusBadge" style="padding:6px 14px;border-radius:999px;font-weight:700;font-size:0.82rem;background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0;display:inline-flex;align-items:center;gap:6px">
-              <span style="width:8px;height:8px;border-radius:50%;background:#10b981;display:inline-block"></span>
-              <span>IndexedDB Active (Local)</span>
-            </div>
-          </div>
 
-          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:14px;margin-bottom:14px">
-            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;text-align:center">
-              <div style="background:#fff;padding:10px;border-radius:8px;border:1px solid #e2e8f0">
-                <span style="font-size:1.25rem;font-weight:700;color:var(--navy);display:block" id="dbStatProducts">--</span>
-                <span style="font-size:.76rem;color:var(--ink-soft);text-transform:uppercase;font-weight:600">Products</span>
-              </div>
-              <div style="background:#fff;padding:10px;border-radius:8px;border:1px solid #e2e8f0">
-                <span style="font-size:1.25rem;font-weight:700;color:var(--navy);display:block" id="dbStatVariants">--</span>
-                <span style="font-size:.76rem;color:var(--ink-soft);text-transform:uppercase;font-weight:600">Variants</span>
-              </div>
-              <div style="background:#fff;padding:10px;border-radius:8px;border:1px solid #e2e8f0">
-                <span style="font-size:1.25rem;font-weight:700;color:var(--navy);display:block" id="dbStatOrders">--</span>
-                <span style="font-size:.76rem;color:var(--ink-soft);text-transform:uppercase;font-weight:600">Orders</span>
-              </div>
-              <div style="background:#fff;padding:10px;border-radius:8px;border:1px solid #e2e8f0">
-                <span style="font-size:1.25rem;font-weight:700;color:var(--navy);display:block" id="dbStatHistory">--</span>
-                <span style="font-size:.76rem;color:var(--ink-soft);text-transform:uppercase;font-weight:600">Audit Logs</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Supabase Configuration (Optional) -->
-          <details style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:12px;margin-bottom:12px">
-            <summary style="font-weight:600;font-size:.88rem;cursor:pointer;color:var(--navy);outline:none">
-              ☁️ Connect Supabase Cloud Database (Optional)
-            </summary>
-            <div style="margin-top:12px;font-size:.84rem;color:var(--ink-soft);line-height:1.5">
-              <p style="margin-bottom:10px">Want your data synced to Supabase PostgreSQL in the cloud? Enter your project details below:</p>
-              <div class="form-group" style="margin-bottom:10px">
-                <label for="sbUrlInput" style="font-size:.82rem">Supabase Project URL</label>
-                <input type="url" id="sbUrlInput" placeholder="https://your-project.supabase.co" style="width:100%;padding:8px 12px;border:1px solid #cbd5e1;border-radius:6px;font-size:.85rem">
-              </div>
-              <div class="form-group" style="margin-bottom:10px">
-                <label for="sbKeyInput" style="font-size:.82rem">Supabase Public Anon Key</label>
-                <input type="password" id="sbKeyInput" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." style="width:100%;padding:8px 12px;border:1px solid #cbd5e1;border-radius:6px;font-size:.85rem">
-              </div>
-              <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
-                <button type="button" class="btn btn-ghost btn-sm" id="sbTestBtn">🔍 Test Connection</button>
-                <button type="button" class="btn btn-primary btn-sm" id="sbSaveBtn">Save &amp; Connect</button>
-                <button type="button" class="btn btn-ghost btn-sm" id="sbDisconnectBtn" style="color:var(--red,#ef4444);display:none">Disconnect Cloud</button>
-              </div>
-              <p id="sbTestResult" style="margin-top:8px;font-size:.82rem;font-weight:600"></p>
-            </div>
-          </details>
-        </div>
 
         <div class="settings-card danger-card">
           <h3>Data Management &amp; Backups</h3>
@@ -1164,12 +1098,7 @@
 <!-- ============ TOAST ============ -->
 <div class="dash-toast" id="dashToast"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="supabase-config.js"></script>
 <script src="products.js"></script>
-<script src="ff-db.js"></script>
-<script src="ff-data.js"></script>
-<script src="migrate-catalog.js"></script>
 <script src="stock_engine.js"></script>
 <script src="dashboard.js"></script>
 </body>

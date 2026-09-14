@@ -16,6 +16,7 @@
   --ink: #0f172a;
   --ink-soft: #475569;
   --ink-muted: #94a3b8;
+  --muted: #94a3b8;           /* alias for --ink-muted */
   --line: #e2ded4;
   --line-strong: #cbd5e1;
   --gold: #f59e0b;
@@ -33,6 +34,7 @@
   --shadow-modal: 0 25px 60px -12px rgba(15, 23, 42, 0.28);
   --font-display: "Fraunces", Georgia, serif;
   --font-body: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, sans-serif; /* alias for --font-body */
 }
 
 * { box-sizing: border-box; }
@@ -106,6 +108,7 @@ button { font-family: inherit; cursor: pointer; }
   top: 0;
   z-index: 40;
   background: rgba(251, 250, 247, 0.92);
+  -webkit-backdrop-filter: saturate(180%) blur(10px);
   backdrop-filter: saturate(180%) blur(10px);
   border-bottom: 1px solid var(--line);
 }
@@ -516,9 +519,10 @@ button { font-family: inherit; cursor: pointer; }
   z-index: 2;
   box-shadow: 0 2px 6px rgba(0,0,0,0.15);
 }
+/* Discount badge — red pill top-RIGHT of card image */
 .badge-discount {
   position: absolute;
-  top: 10px; right: 42px;
+  top: 10px; right: 10px;
   background: linear-gradient(135deg, #ef4444, #dc2626);
   color: #fff;
   font-size: 0.68rem;
@@ -529,12 +533,14 @@ button { font-family: inherit; cursor: pointer; }
   box-shadow: 0 2px 8px rgba(239, 68, 68, 0.35);
   z-index: 2;
 }
+/* Share button — below badge on right side */
 .card-share-btn {
   position: absolute;
-  top: 10px; right: 10px;
+  top: 44px; right: 10px;
   width: 28px; height: 28px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.85);
+  -webkit-backdrop-filter: blur(4px);
   backdrop-filter: blur(4px);
   border: 1px solid rgba(0,0,0,0.08);
   display: flex;
@@ -550,6 +556,7 @@ button { font-family: inherit; cursor: pointer; }
   color: var(--coral);
   transform: scale(1.08);
 }
+/* Quick-view hover button — bottom-center of card image */
 .card-quick-view {
   position: absolute;
   bottom: 12px;
@@ -559,6 +566,7 @@ button { font-family: inherit; cursor: pointer; }
   pointer-events: none;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   background: rgba(255, 255, 255, 0.95);
+  -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
   color: var(--navy);
   padding: 7px 16px;
@@ -575,19 +583,9 @@ button { font-family: inherit; cursor: pointer; }
 .product-card:hover .card-quick-view {
   transform: translateX(-50%) translateY(0);
   opacity: 1;
+  pointer-events: auto;
 }
-.badge-stock-out {
-  position: absolute;
-  top: 10px; left: 10px;
-  background: rgba(15, 23, 42, 0.85);
-  color: #f87171;
-  font-size: 0.7rem;
-  font-weight: 700;
-  padding: 4px 10px;
-  border-radius: 999px;
-  letter-spacing: 0.02em;
-  z-index: 2;
-}
+
 .product-body {
   padding: 18px 18px 20px;
   display: flex;
@@ -934,8 +932,10 @@ button { font-family: inherit; cursor: pointer; }
   font-size: 0.85rem;
   font-weight: 600;
   color: var(--navy);
-  margin-bottom: 14px;
+  margin-bottom: 6px;
+  margin-top: 14px;
 }
+#checkoutForm label:first-of-type { margin-top: 0; }
 #checkoutForm input,
 #checkoutForm textarea,
 #checkoutForm select {
@@ -2043,4 +2043,116 @@ button { font-family: inherit; cursor: pointer; }
   background: var(--navy);
   color: #fff;
   border-color: var(--navy);
+}
+
+/* ============================================================
+   SUCCESS ACTIONS LAYOUT
+   ============================================================ */
+.success-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ============================================================
+   MOBILE SEARCH PANEL
+   ============================================================ */
+.mobile-search-btn {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--ink);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: var(--radius-sm);
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s;
+}
+.mobile-search-btn:hover { color: var(--coral); }
+
+.mobile-search-panel {
+  background: var(--cream);
+  border-top: 1px solid var(--line);
+  padding: 10px 18px;
+  display: none;
+}
+.mobile-search-panel:not([hidden]) { display: block; }
+.mobile-search-inner {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.mobile-search-inner input {
+  flex: 1;
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: #fff;
+  font-size: 0.9rem;
+  font-family: inherit;
+  color: var(--ink);
+}
+.mobile-search-inner input:focus {
+  border-color: var(--coral);
+  outline: none;
+}
+.mobile-search-close {
+  background: none;
+  border: none;
+  font-size: 1.4rem;
+  color: var(--ink-soft);
+  cursor: pointer;
+  line-height: 1;
+  padding: 4px;
+}
+@media (max-width: 768px) {
+  .mobile-search-btn { display: flex; }
+}
+
+/* ============================================================
+   FOOTER POLICY BUTTONS (replace javascript:void links)
+   ============================================================ */
+.footer-policy-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: inherit;
+  font-size: 0.9rem;
+  color: rgba(255,255,255,0.78);
+  cursor: pointer;
+  text-align: left;
+  transition: color 0.2s;
+}
+.footer-policy-btn:hover {
+  color: var(--coral);
+}
+
+/* ============================================================
+   ADDITIONAL RESPONSIVE BREAKPOINTS
+   ============================================================ */
+
+/* Tablet mid-range: prevent cramped 3-col grid */
+@media (max-width: 900px) {
+  .product-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* Footer brand description full-width on mobile */
+@media (max-width: 768px) {
+  .footer-brand p { max-width: 100%; }
+}
+
+/* iOS modal scroll fix */
+@media (max-width: 768px) {
+  .modal-overlay { -webkit-overflow-scrolling: touch; }
+  .modal { -webkit-overflow-scrolling: touch; }
+}
+
+/* Very small phones: single column product grid */
+@media (max-width: 360px) {
+  .product-grid { grid-template-columns: 1fr; }
+  .hero-art { height: 220px; }
+  .card-1 { width: 55%; height: 58%; }
+  .card-2 { width: 45%; height: 40%; }
+  .card-3 { font-size: 0.85rem; }
 }

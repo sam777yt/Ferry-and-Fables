@@ -110,7 +110,6 @@ function ensureProductStock(product) {
 
 function getStoredProducts() {
   if (Array.isArray(window.ffProductCache)) return window.ffProductCache;
-  if (window.ffSupabaseReady) return [];
   try {
     const raw = localStorage.getItem(STOCK_STORAGE_KEY);
     const list = raw ? JSON.parse(raw) : (typeof PRODUCTS !== "undefined" ? [...PRODUCTS] : []);
@@ -126,7 +125,7 @@ function getStoredProducts() {
     }
     return list;
   } catch {
-    return window.ffSupabaseReady ? [] : (typeof PRODUCTS !== "undefined" ? [...PRODUCTS] : []);
+    return typeof PRODUCTS !== "undefined" ? [...PRODUCTS] : [];
   }
 }
 
@@ -312,16 +311,6 @@ function adjustProductStock(productId, size, color, delta, reason, actor = "Admi
   const prevStock = p.variantStock[vKey] || 0;
   const newStock = Math.max(0, prevStock + Number(delta));
 
-  if (window.ffSupabaseReady) {
-    const variantId = p._variantIds && (
-      p._variantIds[vKey] ||
-      p._variantIds["default"] ||
-      (Object.values(p._variantIds).length === 1 ? Object.values(p._variantIds)[0] : null)
-    );
-    if (!variantId) return null;
-    window.ffAdjustStock(variantId, Number(delta), reason, actionType)
-      .catch(error => console.error("Supabase stock adjustment failed", error));
-  }
 
   p.variantStock[vKey] = newStock;
 

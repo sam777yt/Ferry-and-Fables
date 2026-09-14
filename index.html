@@ -6,11 +6,24 @@
 <title>Ferry &amp; Fable — Everyday Essentials</title>
 <meta name="description" content="Simple online shop. Browse, add to cart, order by WhatsApp or Cash on Delivery — no account needed. Fast delivery across Bangladesh.">
 
+<!-- Content Security Policy -->
+<meta http-equiv="Content-Security-Policy"
+  content="default-src 'self';
+           script-src 'self' https://cdnjs.cloudflare.com;
+           style-src 'self' https://fonts.googleapis.com 'unsafe-inline';
+           font-src https://fonts.gstatic.com;
+           img-src 'self' https: blob: data:;
+           connect-src 'self';">
+
+<!-- Canonical -->
+<link rel="canonical" href="https://yourdomain.com/">
+
 <!-- Favicon -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230f172a'/%3E%3Ctext x='50%25' y='54%25' font-family='serif' font-size='18' font-weight='bold' fill='%23ea580c' dominant-baseline='middle' text-anchor='middle'%3EF%3C/text%3E%3C/svg%3E">
 
 <!-- Open Graph / Social Sharing Previews -->
 <meta property="og:type" content="website">
+<meta property="og:url" content="https://yourdomain.com/">
 <meta property="og:title" content="Ferry &amp; Fable — Everyday Essentials">
 <meta property="og:description" content="Shop relaxed linen, tailored chinos &amp; everyday staples. Fast cash on delivery nationwide.">
 <meta property="og:image" content="https://images.unsplash.com/photo-1607083206968-13611e3d76db?w=1200&q=80">
@@ -21,9 +34,14 @@
 <meta name="twitter:description" content="Shop relaxed linen, tailored chinos &amp; everyday staples. Fast cash on delivery nationwide.">
 <meta name="twitter:image" content="https://images.unsplash.com/photo-1607083206968-13611e3d76db?w=1200&q=80">
 
+<!-- Resource Hints -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://images.unsplash.com">
+<link rel="preload" as="image" href="https://images.unsplash.com/photo-1607083206968-13611e3d76db?w=700&q=80">
+
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<!-- jsPDF is loaded on-demand only when needed (lazy), not blocking render -->
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -43,7 +61,7 @@
       </div>
     </a>
 
-    <nav class="main-nav" id="mainNav">
+    <nav class="main-nav" id="mainNav" aria-label="Main navigation">
       <a href="#shop" class="nav-link" data-nav-dept="all">All Shop</a>
       <a href="#shop" class="nav-link" data-nav-dept="Men">Men</a>
       <a href="#shop" class="nav-link" data-nav-dept="Women">Women</a>
@@ -53,13 +71,24 @@
     </nav>
 
     <div class="header-actions">
+      <!-- Mobile search toggle icon (visible ≤768px) -->
+      <button class="mobile-search-btn" id="mobileSearchToggle" aria-label="Toggle search" aria-expanded="false">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </button>
       <div class="search-box">
         <input type="text" id="searchInput" placeholder="Search products…" aria-label="Search products">
       </div>
       <button class="cart-btn" id="cartToggle" aria-label="Open cart">
         <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 4h2l2.4 12.4a2 2 0 0 0 2 1.6h7.2a2 2 0 0 0 2-1.6L21 8H6"/><circle cx="9.5" cy="20.5" r="1.3" fill="currentColor" stroke="none"/><circle cx="17.5" cy="20.5" r="1.3" fill="currentColor" stroke="none"/></svg>
-        <span class="cart-count" id="cartCount">0</span>
+        <span class="cart-count" id="cartCount" aria-live="polite" aria-label="Items in cart">0</span>
       </button>
+    </div>
+  </div>
+  <!-- Mobile search panel (expands below header on mobile) -->
+  <div class="mobile-search-panel" id="mobileSearchPanel" hidden>
+    <div class="mobile-search-inner">
+      <input type="text" id="mobileSearchInput" placeholder="Search products…" aria-label="Search products on mobile" autocomplete="off">
+      <button type="button" class="mobile-search-close" id="mobileSearchClose" aria-label="Close search">&times;</button>
     </div>
   </div>
 </header>
@@ -219,10 +248,10 @@
     <div class="footer-col">
       <h4>Customer Care</h4>
       <ul>
-        <li><a href="javascript:void(0)" onclick="openPolicyModal('returns')">Returns &amp; Exchanges</a></li>
-        <li><a href="javascript:void(0)" onclick="openPolicyModal('shipping')">Shipping &amp; Delivery</a></li>
-        <li><a href="javascript:void(0)" onclick="openPolicyModal('privacy')">Privacy Policy</a></li>
-        <li><a href="javascript:void(0)" onclick="openPolicyModal('terms')">Terms of Service</a></li>
+        <li><button type="button" class="footer-policy-btn" onclick="openPolicyModal('returns')">Returns &amp; Exchanges</button></li>
+        <li><button type="button" class="footer-policy-btn" onclick="openPolicyModal('shipping')">Shipping &amp; Delivery</button></li>
+        <li><button type="button" class="footer-policy-btn" onclick="openPolicyModal('privacy')">Privacy Policy</button></li>
+        <li><button type="button" class="footer-policy-btn" onclick="openPolicyModal('terms')">Terms of Service</button></li>
       </ul>
     </div>
   </div>
@@ -386,27 +415,24 @@
         </div>
       </div>
 
-      <label>
-        Full name
-        <input type="text" id="custName" required placeholder="e.g. Ayesha Rahman">
-      </label>
-      <label>
-        Phone number
-        <input type="tel" id="custPhone" required placeholder="e.g. 01700-000000">
-      </label>
-      <label>
-        Delivery address
-        <textarea id="custAddress" required rows="3" placeholder="House, road, area, city"></textarea>
-      </label>
-      <label>
-        Payment method
-        <select id="custPayment">
-          <option value="Cash on Delivery">Cash on Delivery</option>
-          <option value="bKash">bKash</option>
-          <option value="Nagad">Nagad</option>
-        </select>
-      </label>
+      <label for="custName">Full name</label>
+      <input type="text" id="custName" required placeholder="e.g. Ayesha Rahman">
 
+      <label for="custPhone">Phone number</label>
+      <input type="tel" id="custPhone" required placeholder="e.g. 01700-000000">
+
+      <label for="custAddress">Delivery address</label>
+      <textarea id="custAddress" required rows="3" placeholder="House, road, area, city"></textarea>
+
+      <label for="custPayment">Payment method</label>
+      <select id="custPayment">
+        <option value="Cash on Delivery">Cash on Delivery</option>
+        <option value="bKash">bKash</option>
+        <option value="Nagad">Nagad</option>
+      </select>
+
+      <!-- Honeypot anti-spam field: hidden from humans, bots fill it -->
+      <input type="text" name="website" id="hpWebsite" tabindex="-1" autocomplete="off" aria-hidden="true" style="display:none;position:absolute;left:-9999px">
 
       <div class="modal-summary" id="modalSummary"></div>
 
@@ -438,7 +464,7 @@
       <!-- items breakdown -->
     </div>
 
-    <div class="success-actions" style="display:flex;flex-direction:column;gap:8px">
+    <div class="success-actions">
       <button type="button" class="btn btn-ghost btn-block" id="successDownloadPdfBtn" style="border:1.5px solid var(--line);font-weight:600">⬇️ Download PDF Proof Again</button>
       <button type="button" class="btn btn-ghost btn-block" id="successOwnerWaBtn" style="border:1.5px solid #25d366;color:#128c7e;font-weight:600">💬 Contact Owner on WhatsApp with Order ID</button>
       <button type="button" class="btn btn-primary btn-block" id="successCloseBtn">Continue Shopping</button>
@@ -490,15 +516,24 @@
 </div>
 
 <!-- ============ TOAST ============ -->
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="supabase-config.js"></script>
-<script src="products.js"></script>
-<script src="ff-db.js"></script>
-<script src="ff-data.js"></script>
-<script src="migrate-catalog.js"></script>
-<script src="stock_engine.js"></script>
-<script src="script.js"></script>
+<script src="products.js" defer></script>
+<script src="stock_engine.js" defer></script>
+<script src="script.js" defer></script>
+
+<!-- Store Structured Data -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Store",
+  "name": "Ferry & Fable",
+  "url": "https://yourdomain.com",
+  "description": "Simple online shop for everyday essentials. Cash on delivery across Bangladesh.",
+  "areaServed": "BD",
+  "currenciesAccepted": "BDT",
+  "paymentAccepted": "Cash on Delivery, bKash, Nagad"
+}
+</script>
 </body>
 </html>
